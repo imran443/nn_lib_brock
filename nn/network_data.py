@@ -46,6 +46,7 @@ class network_data():
         
         #Create the connection weights between layers
         layerWeights = [None] * numOfLayers
+
         
         for i in range (1, numOfLayers):
             layerWeights[i] = np.random.uniform(-self.randomRange, self.randomRange, (layers[i-1][0],layers[i][0]))
