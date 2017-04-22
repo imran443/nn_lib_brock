@@ -20,7 +20,6 @@ class network_data():
     numOfLayers = 0
     
     trainingData = None
-    trainingDataExpected = None
     
     networkLayers = None #will contain the raw layer data, this is used to determine set layer activation funtions
 
@@ -66,11 +65,22 @@ class network_data():
     def loadTrainingData(self, fname, ename, delim):
         try:
             self.trainingData = np.loadtxt(fname, delimiter=delim)
-            self.trainingDataExpected = np.loadtxt(ename, delimiter=delim)
+            trainingDataExpected = np.loadtxt(ename, delimiter=delim)
+            
+            self.combineData(trainingDataExpected)
+            
         except:
             sys.stderr.write("  ERROR: Issue loading training data, please double check file name and delimiter")
+            
+    
+    def combineData(self, trainingDataExpected):
+        combinedTrainingData = []
         
-        
+        for i in range (0, len(self.trainingData)):
+            
+            combinedTrainingData.append([self.trainingData[i], trainingDataExpected[i]])
+                    
+        self.trainingData = combinedTrainingData
     
     ######
     ##SETTER FUNCTIONS

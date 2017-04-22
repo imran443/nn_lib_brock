@@ -4,6 +4,7 @@ Created on Apr 21, 2017
 @author: Matth
 '''
 import numpy as np
+import sys
 
 class network_trainer():
     global nd
@@ -19,11 +20,11 @@ class network_trainer():
         global nd
         print ("Training Network!")
         
-        
-        for item in range(0,nd.trainingData.shape[0]):
-
-            self.loadTrainingData(nd.trainingData[item]) #load in our input
-            self.loadExpectedOutput(nd.trainingDataExpected[item]) #set our expected output array
+        # TODO: Shuffle the i integer to ensure random loading of data
+        for i in range(0,len(nd.trainingData)):
+            
+            self.setInputs(nd.trainingData[i][0]) #load in our input
+            self.setExpectedOutput(nd.trainingData[i][1]) #set our expected output array
             
             self.forwardPass()
             
@@ -44,7 +45,7 @@ class network_trainer():
         #first calculates the current layers sums, then calculates the activated values (passed through sigmoid or tanh) including bias values
         for i in range(1, nd.numOfLayers):
             nd.layerSums[i] = np.dot(nd.layerActivations[i-1], nd.layerWeights[i-1])
-            nd.layerActivations[i] = self.activationFunction(nd.layerSums[i] + nd.layerBias[i], nd.networkLayers[i][1], False) 
+            nd.layerActivations[i] = self.activationFunction(nd.layerSums[i] + nd.layerBias[i], nd.networkLayers[i][1], False)
         
     
     # Calculates the error in each output node
@@ -61,6 +62,7 @@ class network_trainer():
             # Loads errors in to an array
             nd.layerError[0,i] = output - target
             
+        
     
     def backPropagation(self):
         self.calcErrorAtOutput()
@@ -70,17 +72,24 @@ class network_trainer():
         return
     
     
-    def loadTrainingData(self, input):
+    def setInputs(self, input):
         global nd
-        nd.layerActivations[0][0] = input
-        print (nd.layerActivations[0])
-
         
-    def loadExpectedOutput(self, expected):
+        try:
+            nd.layerActivations[0][0] = input
+        except:
+            sys.stderr.write("  ERROR: Mismatched input and output. Please ensure your input nodes match the size of your input data!")
+        
+        
+    def setExpectedOutput(self, expected):
         global nd
-        nd.layerOutputTarget[0] = expected
-        print(nd.layerOutputTarget[0])
+        
+        try:
+            nd.layerOutputTarget[0] = expected
+        except:
+            sys.stderr.write("  ERROR: Mismatched input and output. Please ensure your input nodes match the size of your input data!")
     
+
     ##########
     ##neuron specific methods
     ##########
