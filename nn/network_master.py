@@ -10,7 +10,7 @@ from nn.network_data import network_data
 from nn.network_trainer import network_trainer
 
 class network_master():
-    nd = None
+    global nd, nt
     
     
     #def __init__(self):        
@@ -18,6 +18,8 @@ class network_master():
     
     #Creates our network data object and sets its values accordingly
     def createNetwork(self, learningTechnique, layers, learningRate, randWeightRange):
+        global nd
+        
         nd = network_data()
         nd.setLearningTechnique(learningTechnique)
         nd.setLearningRate(learningRate)
@@ -25,12 +27,14 @@ class network_master():
         
         print() #to space out our console text
         nd.buildNetwork(layers) #always build the network after setting network values
-        print() #to space out our console text
+        print()
         
     #Creates our network trainer object, passes it our network data
     #calls its training method
     def trainNetwork(self):
-        nt = network_trainer(self.nd)
+        global nd
+
+        nt = network_trainer(nd)
         nt.trainNetwork()
         
 
