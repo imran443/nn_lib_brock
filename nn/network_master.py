@@ -15,15 +15,16 @@ class network_master():
     global nd, nt
     
     
-    def __init__(self):        
+    def __init__(self):
+        print("test")       
         return
 
-    #Accepts two files, one with the training data and one with the expected results
-    #sends the data to network_data
+    # Accepts two files, one with the training data and one with the expected results
+    # Sends the data to network_data
     def loadData(self, fileName, expectedName, delim):
         global nd
         
-        #If nd doesnt exist (user hasnt initialized the network data), catch the error
+        # If nd doesn't exist (user hasn't initialized the network data), catch the error
         try:
             nd.loadTrainingData(fileName, expectedName, delim)
             print ("Data loaded...")
@@ -33,7 +34,7 @@ class network_master():
             sys.stderr.write("  ERROR: Must create network before loading in data!")
             return
     
-    #Helper function to print to console the generated input
+    # Helper function to print to console the generated input
     def printLoadedData(self):
         global nd
         
@@ -41,7 +42,7 @@ class network_master():
             print(item[0], item[1])
     
     
-    #Creates our network data object and sets its values accordingly
+    # Creates our network data object and sets its values accordingly
     def createNetwork(self, learningTechnique, layers, learningRate, randWeightRange):
         global nd
         
@@ -51,12 +52,12 @@ class network_master():
         nd.setRandomRange(randWeightRange)
         
         
-        print() #to space out our console text
+        print() # To space out our console text
         nd.buildNetwork(layers) #always build the network after setting network values
         print()
     
     
-    #Creates our network trainer object, passes it our network data
+    # Creates our network trainer object, passes it our network data
     #calls its training method
     def trainNetwork(self):
         global nd
