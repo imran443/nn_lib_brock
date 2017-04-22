@@ -13,8 +13,8 @@ class network_master():
     global nd, nt
     
     
-    #def __init__(self):        
-    
+    def __init__(self):        
+        return
     
     #Creates our network data object and sets its values accordingly
     def createNetwork(self, learningTechnique, layers, learningRate, randWeightRange):
