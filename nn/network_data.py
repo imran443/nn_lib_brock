@@ -4,6 +4,7 @@ Created on Apr 12, 2017
 @author: Matth
 '''
 import numpy as np
+import sys
 
 class network_data():
     epochs = 1
@@ -16,20 +17,20 @@ class network_data():
     momentumAlpha = 0.0
     biasUse = False
     biasRange = 0.0 #similar to randomRange
-    
     numOfLayers = 0
     
+    trainingData = None
+    trainingDataExpected = None
+    
+    networkLayers = None #will contain the raw layer data, this is used to determine set layer activation funtions
+
     #The layers that contain connection weight values, this is initialized on networkdata creation
     #layerWeights[0] are the connections between input and first hidden layers
     layerWeights = None
     layerOutputTarget = None
-    
     layerSums = None
     layerActivations = None
-    layerError = None
-    
-    networkLayers = None #will contain the raw layer data, this is used to determine set layer activation funtions
-        
+    layerError = None        
         
     #initializes the networks data class
     #Accepts a 2D list of layer information, each item in "layers" contains the layer size, and its activation function
@@ -62,6 +63,15 @@ class network_data():
     
         print ("Network created with " + str(self.numOfLayers) + " layers")
         
+    def loadTrainingData(self, fname, ename, delim):
+        try:
+            self.trainingData = np.loadtxt(fname, delimiter=delim)
+            self.trainingDataExpected = np.loadtxt(ename, delimiter=delim)
+        except:
+            sys.stderr.write("  ERROR: Issue loading training data, please double check file name and delimiter")
+        
+        
+    
     ######
     ##SETTER FUNCTIONS
     ######

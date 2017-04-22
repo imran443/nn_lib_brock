@@ -19,15 +19,21 @@ class network_trainer():
         global nd
         print ("Training Network!")
         
-        self.forwardPass()
         
-        if (nd.trainingTechnique == "backprop"):
+        for item in range(0,nd.trainingData.shape[0],2):
+
+            self.loadTrainingData(nd.trainingData[item]) #load in our input
+            self.loadExpectedOutput(nd.trainingDataExpected[item]) #set our expected output array
             
-            self.backPropagation()
+            self.forwardPass()
             
-        elif (nd.trainingTechnique == 'rprop'):
-            
-            self.rPropagation()
+            if (nd.trainingTechnique == "backprop"):
+                
+                self.backPropagation()
+                
+            elif (nd.trainingTechnique == 'rprop'):
+                
+                self.rPropagation()
             
             
     #The base forward pass of the network
@@ -63,6 +69,9 @@ class network_trainer():
     def rPropagation(self):
         return
     
+    
+    def loadTrainingData(self, input):
+        print (input)
     
     ##########
     ##neuron specific methods
