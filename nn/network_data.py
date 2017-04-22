@@ -40,11 +40,11 @@ class network_data():
         #initialize our nparray lists
         #Summation, Derivative and other arrays do not need initialization
         
-        #Create the input and output layers
+        # Create the input and output layers
         layerInput = np.zeros((1,layers[0][0]))
         layerOutput = np.zeros((1,layers[numOfLayers-1][0]))
         
-        #Create the connection weights between layers
+        # Create the connection weights between layers
         layerWeights = [None] * numOfLayers
 
         
