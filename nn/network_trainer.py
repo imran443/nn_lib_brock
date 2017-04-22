@@ -20,7 +20,7 @@ class network_trainer():
         print ("Training Network!")
         
         
-        for item in range(0,nd.trainingData.shape[0],2):
+        for item in range(0,nd.trainingData.shape[0]):
 
             self.loadTrainingData(nd.trainingData[item]) #load in our input
             self.loadExpectedOutput(nd.trainingDataExpected[item]) #set our expected output array
@@ -71,7 +71,15 @@ class network_trainer():
     
     
     def loadTrainingData(self, input):
-        print (input)
+        global nd
+        nd.layerActivations[0][0] = input
+        print (nd.layerActivations[0])
+
+        
+    def loadExpectedOutput(self, expected):
+        global nd
+        nd.layerOutputTarget[0] = expected
+        print(nd.layerOutputTarget[0])
     
     ##########
     ##neuron specific methods

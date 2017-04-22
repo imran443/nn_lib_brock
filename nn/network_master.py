@@ -59,7 +59,7 @@ class network_master():
         
 
 ##RAW CODE FOR TESTING PURPOSES
-layers = [[2,"sigmoid"],[2,"sigmoid"],[1,"sigmoid"]]
+layers = [[4,"sigmoid"],[3,"sigmoid"],[1,"sigmoid"]]
 
 testNetwork = network_master()
 testNetwork.createNetwork("backprop", layers, 0.2, 0.6)
