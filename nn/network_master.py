@@ -8,6 +8,7 @@ class, where this class will manage the network and perform the desired actions
 '''
 from nn.network_data import network_data
 from nn.network_trainer import network_trainer
+import sys
 
 class network_master():
     global nd, nt
@@ -15,6 +16,21 @@ class network_master():
     
     #def __init__(self):        
     
+    
+    #Accepts two files, one with the training data and one with the expected results
+    #sends the data to network_data
+    def loadData(self, fileName, expectedName, delim):
+        global nd
+        
+        #If nd doesnt exist (user hasnt initialized the network data), catch the error
+        try:
+            nd.loadTrainingData(fileName, expectedName, delim)
+            print ("Data loaded...")
+            print (nd.trainingData)
+            
+        except NameError:
+            sys.stderr.write("  ERROR: Must create network before loading in data!")
+            return
     
     #Creates our network data object and sets its values accordingly
     def createNetwork(self, learningTechnique, layers, learningRate, randWeightRange):
@@ -33,7 +49,11 @@ class network_master():
     #calls its training method
     def trainNetwork(self):
         global nd
-
+        
+        if (nd.trainingData is None):
+            sys.stderr.write("  ERROR: Must load training data!")
+            return
+            
         nt = network_trainer(nd)
         nt.trainNetwork()
         
@@ -42,8 +62,8 @@ class network_master():
 layers = [[2,"sigmoid"],[2,"sigmoid"],[1,"sigmoid"]]
 
 testNetwork = network_master()
-
 testNetwork.createNetwork("backprop", layers, 0.2, 0.6)
+testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
 testNetwork.trainNetwork()
         
         
