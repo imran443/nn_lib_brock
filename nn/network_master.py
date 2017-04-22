@@ -62,7 +62,12 @@ class network_master():
             return
             
         nt = network_trainer(nd)
-        nt.trainNetwork()
+        
+        if (nd.holdoutTechnique == "holdout"):
+            nt.holdout()
+            
+        elif(nd.holdoutTechnique == "kfold"):
+            nt.kfold()
         
 
 ##RAW CODE FOR TESTING PURPOSES

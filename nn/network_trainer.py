@@ -14,17 +14,39 @@ class network_trainer():
         nd = networkData
         
         print ("Trainer instantiated.")
+    
+    
+    def holdout(self):
+        global nd
         
+        for i in range (nd.epochs):
+            
+            np.random.shuffle(nd.trainingData)
+            
+            splitPt = int( len(nd.trainingData) * (1-nd.holdoutPercent) )
+            
+            trainingSet = nd.trainingData[0:splitPt]
+            testingSet = nd.trainingData[splitPt+1:len(nd.trainingData)]
+            
+            self.trainNetwork(trainingSet)
+    
+    
+    def kfold(self):
+        global nd
         
-    def trainNetwork(self):
+        for i in range (nd.epochs):
+            
+            return #INCOMPLETE
+        
+    
+    def trainNetwork(self, trainingSet):
         global nd
         print ("Training Network!")
         
-        # TODO: Shuffle the i integer to ensure random loading of data
-        for i in range(0,len(nd.trainingData)):
+        for i in range(0,len(trainingSet)):
             
-            self.setInputs(nd.trainingData[i][0]) #load in our input
-            self.setExpectedOutput(nd.trainingData[i][1]) #set our expected output array
+            self.setInputs(trainingSet[i][0]) #load in our input
+            self.setExpectedOutput(trainingSet[i][1]) #set our expected output array
             
             self.forwardPass()
             

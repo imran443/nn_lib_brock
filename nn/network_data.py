@@ -12,6 +12,8 @@ class network_data():
     randomRange = 0.5 #the range that neuron weight values can be randomized to (0.5 equals the range -0.5 to 0.5)
     
     trainingTechnique = "backprop"
+    holdoutTechnique = "holdout"
+    holdoutPercent = 0.3 #The percentage of training data to be withheld for testing only
     
     momentumUse = False
     momentumAlpha = 0.0
@@ -88,6 +90,10 @@ class network_data():
     def setLearningTechnique(self, lt):
         self.learningTechnique = lt
         print ("Learning technique set to " + lt)
+        
+    def setHoldoutTechnique(self, ht):
+        self.holdoutTechnique = ht
+        print ("Holdout technique set to " + ht)
         
     def setLearningRate(self, lr):
         self.learningRate  = lr
