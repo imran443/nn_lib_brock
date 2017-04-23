@@ -47,7 +47,7 @@ class network_data():
         for i in range (0, self.numOfLayers-1):
             self.layerWeights[i] = np.random.uniform(-self.randomRange, self.randomRange, (layers[i][0],layers[i+1][0]))
 
-        #Create random bias values for each layer
+        # Create random bias values for each layer
         self.layerBias = [None] * self.numOfLayers
         
         for i in range (1, self.numOfLayers):

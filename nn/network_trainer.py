@@ -59,12 +59,12 @@ class network_trainer():
                 self.rPropagation()
             
             
-    #The base forward pass of the network
+    # The base forward pass of the network
     def forwardPass(self):
         global nd
         
-        #runs for every layer excluding input layer
-        #first calculates the current layers sums, then calculates the activated values (passed through sigmoid or tanh) including bias values
+        # Runs for every layer excluding input layer
+        # First calculates the current layers sums, then calculates the activated values (passed through sigmoid or tanh) including bias values
         for i in range(1, nd.numOfLayers):
             nd.layerSums[i] = np.dot(nd.layerActivations[i-1], nd.layerWeights[i-1])
             nd.layerActivations[i] = self.activationFunction(nd.layerSums[i] + nd.layerBias[i], nd.networkLayers[i][1], False)

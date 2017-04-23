@@ -6,8 +6,8 @@ Created on Apr 21, 2017
 The master class users will import into their projects. They will only call commands from this
 class, where this class will manage the network and perform the desired actions
 '''
-from nn.network_data import network_data
-from nn.network_trainer import network_trainer
+from network_data import network_data
+from network_trainer import network_trainer
 import sys
 
 class network_master():
