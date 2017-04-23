@@ -6,7 +6,7 @@ Created on Apr 21, 2017
 import numpy as np
 import sys
 
-class network_trainer():
+class NetworkTrainer():
     global nd
     
     def __init__(self, networkData):

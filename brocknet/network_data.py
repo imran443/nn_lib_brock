@@ -1,11 +1,9 @@
-from training_example import training_example
+from training_example import TrainingExample
 import numpy as np
 import sys
-from xmlrpc.client import boolean
 
-class network_data():
+class NetworkData():
     printInfo = True
-    
     epochs = 1
     learningRate = 0.3
     randomRange = 0.5 # The range that neuron weight values can be randomized to (0.5 equals the range -0.5 to 0.5)

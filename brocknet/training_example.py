@@ -4,7 +4,7 @@ Created on Apr 23, 2017
 @author: Matth
 '''
 
-class training_example():
+class TrainingExample():
         
     inputData = None
     expectedOutput = None
