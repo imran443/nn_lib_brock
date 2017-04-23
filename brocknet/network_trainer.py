@@ -1,7 +1,9 @@
 '''
 Created on Apr 21, 2017
 
-@author: Matth
+@author: Matthew Kirchhof, Imran Qureshi
+
+The class which trains a NetworkData object with its selected settings
 '''
 import numpy as np
 import sys
@@ -17,6 +19,10 @@ class NetworkTrainer():
     
     
     def holdout(self):
+        """
+        Withholds holdoutAmt percent of the data from training for use in testing
+        """
+        
         global nd
         
         for i in range (nd.epochs):
@@ -32,6 +38,11 @@ class NetworkTrainer():
     
     
     def kfold(self):
+        """
+        Runs epoch number of times
+        shuffles the data for each epoch, splits the data into holdoutAmt lists and runs system training on all subsets besides the current k set.
+        """
+        
         global nd
         
         #every epoch
@@ -60,6 +71,11 @@ class NetworkTrainer():
         
     
     def trainNetwork(self, trainingSet):
+        """ 
+        Controls the training algorithms used and overall structure of the networks training
+        Accepts a list of TrainingExample objects to train the network on
+        """
+        
         global nd
         print ("Training Network!")
         
@@ -128,11 +144,15 @@ class NetworkTrainer():
     
 
     def decayWeights(self):
+        """Decays every connections weight by weightDecayFactor percent"""
+        
         for l in range (nd.numOfLayers-2):
            nd.layerWeights[l] = nd.layerWeights[l]*(1-nd.weightDecayFactor)
     
     
     def setInputs(self, input):
+        """Sets the first layers activation layer to the current input training example"""
+        
         global nd
         
         try:
@@ -142,6 +162,8 @@ class NetworkTrainer():
         
         
     def setExpectedOutput(self, expected):
+        """Sets the last layers expected outputs to the current input training examples expected output"""
+        
         global nd
         
         try:
@@ -154,9 +176,9 @@ class NetworkTrainer():
     ##neuron specific methods
     ##########
     
-    #All activation functions along with their derived counterparts
     def activationFunction(self, x, func ,derive = False):
-
+        """All activation functions along with their derived counterparts"""
+        
         if(func == "sigmoid"):
             if(derive == True):
 

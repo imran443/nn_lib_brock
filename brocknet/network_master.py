@@ -1,7 +1,7 @@
 '''
 Created on Apr 21, 2017
 
-@author: Matth
+@author: Matthew Kirchhof, Imran Qureshi
 
 The master class users will import into their projects. They will only call commands from this
 class, where this class will manage the network and perform the desired actions
@@ -19,9 +19,11 @@ class NetworkMaster():
         print("test")       
         return
 
-    # Accepts two files, one with the training data and one with the expected results
-    # Sends the data to network_data
     def loadData(self, fileName, expectedName, delim):
+        """
+        Accepts two files, one with the training data and one with the expected results
+        Sends the data to network_data
+        """
         global nd
         
         # If nd doesn't exist (user hasn't initialized the network data), catch the error
@@ -34,8 +36,8 @@ class NetworkMaster():
             sys.stderr.write("  ERROR: Must create network before loading in data!")
             
     
-    # Helper function to print to console the generated input
     def printLoadedData(self):
+        """Helper function to print to console the generated input"""
         global nd
         
         for item in nd.trainingData:
@@ -43,13 +45,12 @@ class NetworkMaster():
     
     
     def detailedOutput(self, toPrint):
+        """Turn detailed printing on or off"""
         global nd
         
         nd.setPrinting(toPrint)
     
     
-    #Creates our network data object and sets its values accordingly
-    #Learning technique and layers are required. All other settings are optional
     def createNetwork(self, learningTechnique, layers, 
                       holdoutTechnique="holdout",
                       epochs = 50, 
@@ -59,6 +60,11 @@ class NetworkMaster():
                       bias=False, biasRange = 0.0,
                       weightDecay=False, weightDecayFactor=0.05
                       ):
+        """
+        Creates our network data object and sets its values accordingly
+        Learning technique and layers are required. All other settings are optional
+        Defaults are preset here
+        """
         global nd
         
         nd = NetworkData()
@@ -79,6 +85,7 @@ class NetworkMaster():
         
     
     def set(self,learningTechnique=-1,layers=-1,holdoutTechnique=-1,holdoutAmt=-1,epochs=-1,learningRate=-1,weightRange=-1,momentum=-1, momentumAlpha=-1,bias=-1, biasRange=-1, weightDecay=-1, weightDecayFactor=-1):
+        """Changes network settings to the passed parameters"""
         
         if (learningTechnique!=-1):
             nd.setLearningTechnique(learningTechnique)
@@ -100,10 +107,8 @@ class NetworkMaster():
             nd.setWeightDecay(weightDecay, weightDecayFactor)
         
     
-    
-    # Creates our network trainer object, passes it our network data
-    #calls its training method
     def trainNetwork(self):
+        """Creates our network trainer object, passes it our network data and calls the specified holdout training method"""
         global nd
         
         if (nd.trainingData is None):

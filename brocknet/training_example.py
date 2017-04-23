@@ -1,7 +1,7 @@
 '''
 Created on Apr 23, 2017
 
-@author: Matth
+@author: Matthew Kirchhof, Imran Qureshi
 '''
 
 class TrainingExample():
