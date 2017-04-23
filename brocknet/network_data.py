@@ -72,7 +72,7 @@ class NetworkData():
         combinedTrainingData = []
         
         for i in range (0, len(self.trainingData)):
-            temp = training_example(self.trainingData[i],trainingDataExpected[i])
+            temp = TrainingExample(self.trainingData[i],trainingDataExpected[i])
             combinedTrainingData.append(temp)
                     
         print (combinedTrainingData)
