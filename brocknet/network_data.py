@@ -1,14 +1,18 @@
+from training_example import training_example
 import numpy as np
 import sys
+from xmlrpc.client import boolean
 
 class network_data():
+    printInfo = True
+    
     epochs = 1
     learningRate = 0.3
     randomRange = 0.5 # The range that neuron weight values can be randomized to (0.5 equals the range -0.5 to 0.5)
     
     trainingTechnique = "backprop"
     holdoutTechnique = "holdout"
-    holdoutPercent = 0.3 # The percentage of training data to be withheld for testing only
+    holdoutAmt = 0.3 # The percentage OR number of k folds, dependent on the holdout technique above
     
     momentumUse = False
     momentumAlpha = 0.0
@@ -70,9 +74,10 @@ class network_data():
         combinedTrainingData = []
         
         for i in range (0, len(self.trainingData)):
-            
-            combinedTrainingData.append([self.trainingData[i], trainingDataExpected[i]])
+            temp = training_example(self.trainingData[i],trainingDataExpected[i])
+            combinedTrainingData.append(temp)
                     
+        print (combinedTrainingData)
         self.trainingData = combinedTrainingData
     
     ######
@@ -84,8 +89,7 @@ class network_data():
         
     def setHoldoutTechnique(self, ht, val):
         self.holdoutTechnique = ht
-        
-        holdoutPercent = val
+        self.holdoutAmt = val
         
         print ("Holdout technique set to " + ht)
         
@@ -119,6 +123,13 @@ class network_data():
             
     def setLayers(self, layers):
         self.networkLayers = layers;
+        
+    def setPrinting(self, toPrint):
+        if type(toPrint == bool):
+            self.printInfo = toPrint
+            print ("Detailed system printing set to " + str(toPrint))
+        else:
+            print ("System printing NOT updated: Must pass a boolean True or False")
         
     
         

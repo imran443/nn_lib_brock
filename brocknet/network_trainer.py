@@ -23,7 +23,7 @@ class network_trainer():
             
             np.random.shuffle(nd.trainingData)
             
-            splitPt = int( len(nd.trainingData) * (1-nd.holdoutPercent) )
+            splitPt = int( len(nd.trainingData) * (1-nd.holdoutAmt) )
             
             trainingSet = nd.trainingData[0:splitPt]
             testingSet = nd.trainingData[splitPt+1:len(nd.trainingData)]
@@ -34,9 +34,29 @@ class network_trainer():
     def kfold(self):
         global nd
         
+        #every epoch
         for i in range (nd.epochs):
             
-            return #INCOMPLETE
+            np.random.shuffle(nd.trainingData)
+            
+            splitTrainingSets = np.array_split(nd.trainingData,nd.holdoutAmt)
+            
+            #run through training kfold times, each withholding the jth subset for testing
+            for j in range (nd.holdoutAmt):
+                
+                trainingSet = []
+                
+                #split into this runs training and testing sets
+                testingSet = splitTrainingSets[j]
+                
+                #combine remaining items into training set
+                for a,item in enumerate(splitTrainingSets):
+                    if (a != j):
+                        
+                        trainingSet.extend(item)  
+                #train
+                self.trainNetwork(trainingSet)
+            
         
     
     def trainNetwork(self, trainingSet):
@@ -45,8 +65,13 @@ class network_trainer():
         
         for i in range(0,len(trainingSet)):
             
-            self.setInputs(trainingSet[i][0]) #load in our input
-            self.setExpectedOutput(trainingSet[i][1]) #set our expected output array
+            self.setInputs(np.array(trainingSet[i].inputData)) #load in our input
+            
+            #Special case of one output node, must make a single element list
+            if (nd.networkLayers[nd.numOfLayers-1][0] == 1):
+                self.setExpectedOutput(np.array([trainingSet[i].expectedOutput]))
+            else:
+                self.setExpectedOutput(np.array(trainingSet[i].expectedOutput))
             
             self.forwardPass()
             
@@ -78,11 +103,16 @@ class network_trainer():
         nd.layerError = np.empty([1, nd.layerActivations[nd.numOfLayers-1].shape[1]])
 
         for i in range(nd.layerActivations[nd.numOfLayers-1].shape[1]):
-            output = nd.layerActivations[nd.numOfLayers-1][0, i]
-            target = nd.layerOutputTarget[0, i]
-
-            # Loads errors in to an array
-            nd.layerError[0,i] = output - target
+            try:
+                output = nd.layerActivations[nd.numOfLayers-1][0, i]
+                target = nd.layerOutputTarget[i]
+    
+                # Loads errors in to an array
+                nd.layerError[0,i] = output - target
+            except:
+                sys.stderr.write("  ERROR: the expected output file and output layer do not match!")
+                
+        
             
         
     
@@ -98,7 +128,7 @@ class network_trainer():
         global nd
         
         try:
-            nd.layerActivations[0][0] = input
+            nd.layerActivations[0] = input
         except:
             sys.stderr.write("  ERROR: Mismatched input and output. Please ensure your input nodes match the size of your input data!")
         
@@ -107,7 +137,7 @@ class network_trainer():
         global nd
         
         try:
-            nd.layerOutputTarget[0] = expected
+            nd.layerOutputTarget = expected
         except:
             sys.stderr.write("  ERROR: Mismatched input and output. Please ensure your input nodes match the size of your input data!")
     

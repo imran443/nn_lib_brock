@@ -39,7 +39,13 @@ class network_master():
         global nd
         
         for item in nd.trainingData:
-            print(item[0], item[1])
+            print(item.inputData, item.expectedOutput)
+    
+    
+    def detailedOutput(self, toPrint):
+        global nd
+        
+        nd.setPrinting(toPrint)
     
     
     #Creates our network data object and sets its values accordingly
@@ -119,8 +125,8 @@ testNetwork.createNetwork("backprop", layers, learningRate=0.2, weightRange=0.6)
 
 testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
 
-testNetwork.set(momentum=True, momentumAlpha=0.3)
-
+testNetwork.set(holdoutTechnique="kfold", holdoutAmt = 10)
+testNetwork.detailedOutput(True)
 testNetwork.trainNetwork()
         
         
