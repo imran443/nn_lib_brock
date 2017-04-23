@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 
-class network_data():
+class NetworkData():
     epochs = 1
     learningRate = 0.3
     randomRange = 0.5 # The range that neuron weight values can be randomized to (0.5 equals the range -0.5 to 0.5)

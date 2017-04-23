@@ -6,11 +6,11 @@ Created on Apr 21, 2017
 The master class users will import into their projects. They will only call commands from this
 class, where this class will manage the network and perform the desired actions
 '''
-from network_data import network_data
-from network_trainer import network_trainer
+from network_data import NetworkData
+from network_trainer import NetworkTrainer
 import sys
 
-class network_master():
+class NetworkMaster():
     
     global nd, nt
     
@@ -43,7 +43,7 @@ class network_master():
     
     
     #Creates our network data object and sets its values accordingly
-    #Learning technique and layers are required. All other settings optional
+    #Learning technique and layers are required. All other settings are optional
     def createNetwork(self, learningTechnique, layers, 
                       holdoutTechnique="holdout",
                       epochs = 50, 
@@ -54,7 +54,7 @@ class network_master():
                       ):
         global nd
         
-        nd = network_data()
+        nd = NetworkData()
         
         nd.setLearningTechnique(learningTechnique)
         nd.setEpochs(epochs)
@@ -100,7 +100,7 @@ class network_master():
             sys.stderr.write("  ERROR: Must load training data!")
             return
             
-        nt = network_trainer(nd)
+        nt = NetworkTrainer(nd)
         
         if (nd.holdoutTechnique == "holdout"):
             nt.holdout()
@@ -113,7 +113,7 @@ class network_master():
 
 layers = [[4,"sigmoid"],[3,"sigmoid"],[1,"sigmoid"]]
 
-testNetwork = network_master()
+testNetwork = NetworkMaster()
 
 testNetwork.createNetwork("backprop", layers, learningRate=0.2, weightRange=0.6)
 
