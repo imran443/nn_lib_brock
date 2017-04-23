@@ -11,15 +11,20 @@ from nn.network_trainer import network_trainer
 import sys
 
 class network_master():
-    global nd, nt     
+    
+    global nd, nt
     
     
-    #Accepts two files, one with the training data and one with the expected results
-    #sends the data to network_data
+    def __init__(self):
+        print("test")       
+        return
+
+    # Accepts two files, one with the training data and one with the expected results
+    # Sends the data to network_data
     def loadData(self, fileName, expectedName, delim):
         global nd
         
-        #If nd doesnt exist (user hasnt initialized the network data), catch the error
+        # If nd doesn't exist (user hasn't initialized the network data), catch the error
         try:
             nd.loadTrainingData(fileName, expectedName, delim)
             print ("Data loaded...")
@@ -29,7 +34,7 @@ class network_master():
             sys.stderr.write("  ERROR: Must create network before loading in data!")
             return
     
-    #Helper function to print to console the generated input
+    # Helper function to print to console the generated input
     def printLoadedData(self):
         global nd
         
@@ -60,7 +65,7 @@ class network_master():
         nd.setBias(bias, biasRange)
         
         
-        print() #to space out our console text
+        print() # To space out our console text
         nd.buildNetwork(layers) #always build the network after setting network values
         print()
         
@@ -86,7 +91,7 @@ class network_master():
         
     
     
-    #Creates our network trainer object, passes it our network data
+    # Creates our network trainer object, passes it our network data
     #calls its training method
     def trainNetwork(self):
         global nd
