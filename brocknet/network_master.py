@@ -32,7 +32,7 @@ class NetworkMaster():
             
         except NameError:
             sys.stderr.write("  ERROR: Must create network before loading in data!")
-            return
+            
     
     # Helper function to print to console the generated input
     def printLoadedData(self):
@@ -56,7 +56,8 @@ class NetworkMaster():
                       learningRate=0.3, 
                       weightRange=0.5, 
                       momentum=False, momentumAlpha=0.0, 
-                      bias=False, biasRange = 0.0
+                      bias=False, biasRange = 0.0,
+                      weightDecay=False, weightDecayFactor=0.05
                       ):
         global nd
         
@@ -69,6 +70,7 @@ class NetworkMaster():
         
         nd.setMomentum(momentum, momentumAlpha)
         nd.setBias(bias, biasRange)
+        nd.setWeightDecay(weightDecay, weightDecayFactor)
         
         
         print() # To space out our console text
@@ -76,24 +78,26 @@ class NetworkMaster():
         print()
         
     
-    def set(self,learningTechnique=-1,layers=-1,holdoutTechnique=-1,holdoutAmt=-1,epochs=-1,learningRate=-1,weightRange=-1,momentum=-1, momentumAlpha=-1,bias=-1, biasRange=-1):
+    def set(self,learningTechnique=-1,layers=-1,holdoutTechnique=-1,holdoutAmt=-1,epochs=-1,learningRate=-1,weightRange=-1,momentum=-1, momentumAlpha=-1,bias=-1, biasRange=-1, weightDecay=-1, weightDecayFactor=-1):
         
         if (learningTechnique!=-1):
-            nd.setLearningTechnique = learningTechnique
+            nd.setLearningTechnique(learningTechnique)
         if (layers!=-1):
             nd.setLayers(layers)
         if (holdoutTechnique!=-1 and holdoutAmt!=-1):
             nd.setHoldoutTechnique(holdoutTechnique,holdoutAmt)
         if (epochs!=-1):
-            nd.setEpochs = epochs
+            nd.setEpochs(epochs)
         if (learningRate!=-1):
-            nd.setLearningRate = learningRate
+            nd.setLearningRate(learningRate)
         if (weightRange!=-1):
-            nd.setRandomRange = weightRange
+            nd.setRandomRange(weightRange)
         if (momentum!=-1 and momentumAlpha!=-1):
             nd.setMomentum(momentum, momentumAlpha)
         if (bias!=-1 and biasRange!=-1):
             nd.setBias(bias, biasRange)
+        if (weightDecay!=-1 and weightDecayFactor!=-1):
+            nd.setWeightDecay(weightDecay, weightDecayFactor)
         
     
     
@@ -125,8 +129,12 @@ testNetwork.createNetwork("backprop", layers, learningRate=0.2, weightRange=0.6)
 
 testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
 
-testNetwork.set(holdoutTechnique="kfold", holdoutAmt = 10)
+#testNetwork.set(holdoutTechnique="kfold", holdoutAmt = 10)
+
+testNetwork.set(weightDecay = True, weightDecayFactor=0.10)
+
 testNetwork.detailedOutput(True)
+
 testNetwork.trainNetwork()
         
         

@@ -4,6 +4,7 @@ import sys
 
 class NetworkData():
     printInfo = True
+    numOfLayers = 0
     epochs = 1
     learningRate = 0.3
     randomRange = 0.5 # The range that neuron weight values can be randomized to (0.5 equals the range -0.5 to 0.5)
@@ -16,7 +17,8 @@ class NetworkData():
     momentumAlpha = 0.0
     biasUse = False
     biasRange = 0.0 # Similar to randomRange
-    numOfLayers = 0
+    weightDecay = False
+    weightDecayFactor = 0.05 #The percentage a weight decays by
     
     trainingData = None
     
@@ -118,6 +120,14 @@ class NetworkData():
             print ("Using bias with a weight of " + str(amt))
         else:
             print ("Not using bias")
+            
+    def setWeightDecay(self, wd, wdf):
+        self.weightDecay = wd
+        self.weightDecayFactor = wdf
+        if (wd):
+            print ("Using weight decay with a weight decay percentage of " + str(wdf))
+        else:
+            print ("Not using weight decay")
             
     def setLayers(self, layers):
         self.networkLayers = layers;

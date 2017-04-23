@@ -82,6 +82,7 @@ class NetworkTrainer():
             elif (nd.trainingTechnique == 'rprop'):
                 
                 self.rPropagation()
+                
             
             
     # The base forward pass of the network
@@ -112,6 +113,8 @@ class NetworkTrainer():
             except:
                 sys.stderr.write("  ERROR: the expected output file and output layer do not match!")
                 
+            print (nd.layerError)
+                
         
             
         
@@ -122,6 +125,11 @@ class NetworkTrainer():
     
     def rPropagation(self):
         return
+    
+
+    def decayWeights(self):
+        for l in range (nd.numOfLayers-2):
+           nd.layerWeights[l] = nd.layerWeights[l]*(1-nd.weightDecayFactor)
     
     
     def setInputs(self, input):
