@@ -1,8 +1,4 @@
 '''
-Created on Apr 21, 2017
-
-@author: Matth
-
 The master class users will import into their projects. They will only call commands from this
 class, where this class will manage the network and perform the desired actions
 '''
@@ -10,13 +6,12 @@ from network_data import NetworkData
 from network_trainer import NetworkTrainer
 import sys
 
-class NetworkMaster():
+class NetworkMaster:
     
     global nd, nt
     
     
-    def __init__(self):
-        print("test")       
+    def __init__(self):    
         return
 
     # Accepts two files, one with the training data and one with the expected results
@@ -28,7 +23,7 @@ class NetworkMaster():
         try:
             nd.loadTrainingData(fileName, expectedName, delim)
             print ("Data loaded...")
-            self.printLoadedData()
+            #self.printLoadedData()
             
         except NameError:
             sys.stderr.write("  ERROR: Must create network before loading in data!")
@@ -42,15 +37,17 @@ class NetworkMaster():
             print(item[0], item[1])
     
     
-    #Creates our network data object and sets its values accordingly
-    #Learning technique and layers are required. All other settings are optional
+    # Creates our network data object and sets its values accordingly
+    # Learning technique and layers are required. All other settings are optional
     def createNetwork(self, learningTechnique, layers, 
                       holdoutTechnique="holdout",
                       epochs = 50, 
                       learningRate=0.3, 
                       weightRange=0.5, 
-                      momentum=False, momentumAlpha=0.0, 
-                      bias=False, biasRange = 0.0
+                      momentum=False, 
+                      momentumAlpha=0.0, 
+                      bias=False, 
+                      biasRange = 0.0
                       ):
         global nd
         
@@ -66,7 +63,7 @@ class NetworkMaster():
         
         
         print() # To space out our console text
-        nd.buildNetwork(layers) #always build the network after setting network values
+        nd.buildNetwork(layers) # Always build the network after setting network values
         print()
         
     
@@ -92,7 +89,7 @@ class NetworkMaster():
     
     
     # Creates our network trainer object, passes it our network data
-    #calls its training method
+    # Calls its training method
     def trainNetwork(self):
         global nd
         

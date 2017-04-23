@@ -1,7 +1,7 @@
 import numpy as np
 import sys
 
-class NetworkData():
+class NetworkData:
     epochs = 1
     learningRate = 0.3
     randomRange = 0.5 # The range that neuron weight values can be randomized to (0.5 equals the range -0.5 to 0.5)
@@ -31,19 +31,26 @@ class NetworkData():
     # Initializes the networks data class
     # Accepts a 2D list of layer information, each item in "layers" contains the layer size, and its activation function
     def buildNetwork(self, layers):
+        
         self.networkLayers = layers
         self.numOfLayers = len(layers)
         
-        # Initialize our nparray lists
-        self.layerSums = [None] * self.numOfLayers # Stores the sums of a nodes inputs
-        self.layerActivations = [None] * self.numOfLayers # Stores the activation result of a nodes sums (Basically the output of nodes)
-        self.layerWeights = [None] * self.numOfLayers # Stores the connecting weights between layers
+        # Initialize our np array lists
+        
+        # Stores the sums of each layers resulting dot product.
+        self.layerSums = [None] * (self.numOfLayers-1)
+        
+        # Stores the activation result of a nodes sums (Basically the output of nodes)
+        self.layerActivations = [None] * self.numOfLayers 
+        
+        # Stores the connecting weights between layers
+        self.layerWeights = [None] * (self.numOfLayers - 1) 
         self.layerError = [None] * self.numOfLayers
-    
         
-        self.layerActivations[0] = np.zeros((1,layers[0][0])) # This is our input layer, layers[0][0] is the size of the first layer the user defined
-        self.layerOutputTarget = np.zeros((1,layers[self.numOfLayers-1][0])) # These values will be set according to our desired output
+        # These values will be set according to our desired output
+        self.layerOutputTarget = np.zeros((1,layers[self.numOfLayers-1][0])) 
         
+        # Random weights will be generated for each layers' connections
         for i in range (0, self.numOfLayers-1):
             self.layerWeights[i] = np.random.uniform(-self.randomRange, self.randomRange, (layers[i][0],layers[i+1][0]))
 
@@ -54,27 +61,27 @@ class NetworkData():
             self.layerBias[i] = np.random.uniform(-self.biasRange, self.biasRange, (1,layers[i][0]))
         
         print ("Network created with " + str(self.numOfLayers) + " layers")
-        
+    
+    # Loads the data of the two specified files (Training, Expected)
     def loadTrainingData(self, fname, ename, delim):
         try:
             self.trainingData = np.loadtxt(fname, delimiter=delim)
             trainingDataExpected = np.loadtxt(ename, delimiter=delim)
-            
             self.combineData(trainingDataExpected)
             
         except:
-            sys.stderr.write("  ERROR: Issue loading training data, please double check file name and delimiter")
+            sys.stderr.write("ERROR: Issue loading training data, please double check file name and delimiter")
             
-    
+    # Combine the data so that the expected answer is paired up with its respective data.
     def combineData(self, trainingDataExpected):
         combinedTrainingData = []
         
-        for i in range (0, len(self.trainingData)):
+        for i in range (len(self.trainingData)):
             
             combinedTrainingData.append([self.trainingData[i], trainingDataExpected[i]])
-                    
+            
         self.trainingData = combinedTrainingData
-    
+        
     ######
     ##SETTER FUNCTIONS
     ######

@@ -1,8 +1,4 @@
-'''
-Created on Apr 21, 2017
 
-@author: Matth
-'''
 import numpy as np
 import sys
 
@@ -19,7 +15,7 @@ class NetworkTrainer():
     def holdout(self):
         global nd
         
-        for i in range (nd.epochs):
+        for i in range (1):
             
             np.random.shuffle(nd.trainingData)
             
@@ -38,15 +34,18 @@ class NetworkTrainer():
             
             return #INCOMPLETE
         
-    
+    # This function is used to train the network.
     def trainNetwork(self, trainingSet):
         global nd
-        print ("Training Network!")
+        # Set the expected output array for error calculations later on.
+        nd.layerOutputTarget
         
-        for i in range(0,len(trainingSet)):
+        for i in range(len(trainingSet)):
+            # Load in our input
+            self.setInputs(trainingSet[i][0])
             
-            self.setInputs(trainingSet[i][0]) #load in our input
-            self.setExpectedOutput(trainingSet[i][1]) #set our expected output array
+            # Set our expected output array
+            self.setExpectedOutput(trainingSet[i][1]) 
             
             self.forwardPass()
             
@@ -58,34 +57,35 @@ class NetworkTrainer():
                 
                 self.rPropagation()
             
-            
+     
     # The base forward pass of the network
     def forwardPass(self):
         global nd
         
-        # Runs for every layer excluding input layer
+        # Runs for n hidden layers and the 1 output layer.
         # First calculates the current layers sums, then calculates the activated values (passed through sigmoid or tanh) including bias values
         for i in range(1, nd.numOfLayers):
-            nd.layerSums[i] = np.dot(nd.layerActivations[i-1], nd.layerWeights[i-1])
-            nd.layerActivations[i] = self.activationFunction(nd.layerSums[i] + nd.layerBias[i], nd.networkLayers[i][1], False)
+            nd.layerSums[i-1] = np.dot(nd.layerActivations[i-1], nd.layerWeights[i-1])
+            nd.layerActivations[i] = self.activationFunction(nd.layerSums[i-1] + nd.layerBias[i], nd.networkLayers[i][1], False)
         
     
     # Calculates the error in each output node
     def calcErrorAtOutput(self):
         global nd
+        outputLayer = nd.layerActivations[nd.numOfLayers-1]
         
         # Create the error contribution array for the output layer
-        nd.layerError = np.empty([1, nd.layerActivations[nd.numOfLayers-1].shape[1]])
-
-        for i in range(nd.layerActivations[nd.numOfLayers-1].shape[1]):
-            output = nd.layerActivations[nd.numOfLayers-1][0, i]
+        nd.layerError = np.empty([1, outputLayer.shape[1]])
+        
+        for i in range(outputLayer.shape[1]):
+            output = outputLayer[0, i]
             target = nd.layerOutputTarget[0, i]
 
             # Loads errors in to an array
             nd.layerError[0,i] = output - target
             
         
-    
+    # Simple back propagation 
     def backPropagation(self):
         self.calcErrorAtOutput()
     
@@ -93,21 +93,21 @@ class NetworkTrainer():
     def rPropagation(self):
         return
     
-    
-    def setInputs(self, input):
+    # Sets the input vector to the as the input layer.
+    def setInputs(self, inputVector):
         global nd
         
         try:
-            nd.layerActivations[0][0] = input
+            nd.layerActivations[0] = inputVector
         except:
             sys.stderr.write("  ERROR: Mismatched input and output. Please ensure your input nodes match the size of your input data!")
         
         
-    def setExpectedOutput(self, expected):
+    def setExpectedOutput(self, expectedVector):
         global nd
         
         try:
-            nd.layerOutputTarget[0] = expected
+            nd.layerOutputTarget = expectedVector
         except:
             sys.stderr.write("  ERROR: Mismatched input and output. Please ensure your input nodes match the size of your input data!")
     
