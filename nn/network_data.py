@@ -91,8 +91,11 @@ class network_data():
         self.learningTechnique = lt
         print ("Learning technique set to " + lt)
         
-    def setHoldoutTechnique(self, ht):
+    def setHoldoutTechnique(self, ht, val):
         self.holdoutTechnique = ht
+        
+        holdoutPercent = val
+        
         print ("Holdout technique set to " + ht)
         
     def setLearningRate(self, lr):

@@ -38,18 +38,52 @@ class network_master():
     
     
     #Creates our network data object and sets its values accordingly
-    def createNetwork(self, learningTechnique, layers, learningRate, randWeightRange):
+    #Learning technique and layers are required. All other settings optional
+    def createNetwork(self, learningTechnique, layers, 
+                      holdoutTechnique="holdout",
+                      epochs = 50, 
+                      learningRate=0.3, 
+                      weightRange=0.5, 
+                      momentum=False, momentumAlpha=0.0, 
+                      bias=False, biasRange = 0.0
+                      ):
         global nd
         
         nd = network_data()
+        
         nd.setLearningTechnique(learningTechnique)
+        nd.setEpochs(epochs)
         nd.setLearningRate(learningRate)
-        nd.setRandomRange(randWeightRange)
+        nd.setRandomRange(weightRange)
+        
+        nd.setMomentum(momentum, momentumAlpha)
+        nd.setBias(bias, biasRange)
         
         
         print() #to space out our console text
         nd.buildNetwork(layers) #always build the network after setting network values
         print()
+        
+    
+    def set(self,learningTechnique=-1,layers=-1,holdoutTechnique=-1,holdoutAmt=-1,epochs=-1,learningRate=-1,weightRange=-1,momentum=-1, momentumAlpha=-1,bias=-1, biasRange=-1):
+        
+        if (learningTechnique!=-1):
+            nd.setLearningTechnique = learningTechnique
+        if (layers!=-1):
+            nd.setLayers(layers)
+        if (holdoutTechnique!=-1 and holdoutAmt!=-1):
+            nd.setHoldoutTechnique(holdoutTechnique,holdoutAmt)
+        if (epochs!=-1):
+            nd.setEpochs = epochs
+        if (learningRate!=-1):
+            nd.setLearningRate = learningRate
+        if (weightRange!=-1):
+            nd.setRandomRange = weightRange
+        if (momentum!=-1 and momentumAlpha!=-1):
+            nd.setMomentum(momentum, momentumAlpha)
+        if (bias!=-1 and biasRange!=-1):
+            nd.setBias(bias, biasRange)
+        
     
     
     #Creates our network trainer object, passes it our network data
@@ -71,11 +105,17 @@ class network_master():
         
 
 ##RAW CODE FOR TESTING PURPOSES
+
 layers = [[4,"sigmoid"],[3,"sigmoid"],[1,"sigmoid"]]
 
 testNetwork = network_master()
-testNetwork.createNetwork("backprop", layers, 0.2, 0.6)
+
+testNetwork.createNetwork("backprop", layers, learningRate=0.2, weightRange=0.6)
+
 testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
+
+testNetwork.set(momentum=True, momentumAlpha=0.3)
+
 testNetwork.trainNetwork()
         
         
