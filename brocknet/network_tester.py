@@ -1,10 +1,5 @@
-'''
-Created on Apr 21, 2017
 
-@author: Matth
-'''
-
-class NetworkTester():
+class NetworkTester:
     
     def __init__(self, networkData):
         nd = networkData

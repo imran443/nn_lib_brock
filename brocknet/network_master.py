@@ -10,14 +10,12 @@ from brocknet import network_data
 from brocknet import network_trainer
 import sys
 
-
-class NetworkMaster():
+class NetworkMaster:
     
     global nd, nt
     
     
-    def __init__(self):
-        print("test")       
+    def __init__(self):    
         return
 
     def loadData(self, fileName, expectedName, delim):
@@ -31,7 +29,7 @@ class NetworkMaster():
         try:
             nd.loadTrainingData(fileName, expectedName, delim)
             print ("Data loaded...")
-            self.printLoadedData()
+            #self.printLoadedData()
             
         except NameError:
             sys.stderr.write("  ERROR: Must create network before loading in data!")
@@ -81,7 +79,7 @@ class NetworkMaster():
         
         
         print() # To space out our console text
-        nd.buildNetwork(layers) #always build the network after setting network values
+        nd.buildNetwork(layers) # Always build the network after setting network values
         print()
         
     
@@ -127,7 +125,7 @@ class NetworkMaster():
 
 ##RAW CODE FOR TESTING PURPOSES
 
-layers = [[4,"sigmoid"],[3,"sigmoid"],[1,"sigmoid"]]
+layers = [[4,"sigmoid"],[2,"sigmoid"],[1,"sigmoid"]]
 
 testNetwork = NetworkMaster()
 
