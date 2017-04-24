@@ -118,6 +118,7 @@ class NetworkData:
     ##SETTER FUNCTIONS
     ######
     def setLearningTechnique(self, lt):
+        print (lt)
         self.learningTechnique = lt
         print ("Learning technique set to " + lt)
         
