@@ -91,13 +91,16 @@ class NetworkTrainer:
 
             if (nd.trainingTechnique == "backprop"):
                 self.backPropagation()
-                   
+                print("Layer Gradients: \n", nd.layerGradients)
             elif (nd.trainingTechnique == 'rprop'):
                 self.rPropagation()
                 
 
-    # The base forward pass of the network
+    
     def forwardPass(self):
+        """
+        The base forward pass of the network
+        """
         global nd
         
         # Runs for n hidden layers and the 1 output layer.
@@ -110,8 +113,11 @@ class NetworkTrainer:
         print("Layer Activations: \n", nd.layerActivations)
         
     
-    # Calculates the error in each output node
+    
     def calcErrorAtOutput(self):
+        """ 
+        Calculates the error in each output node
+        """
         global nd
         
         # Grab the output layer
@@ -133,8 +139,10 @@ class NetworkTrainer:
         nd.layerErrors[nd.numOfLayers-2] = errContribution
       
         
-    # Simple back propagation 
+    
     def backPropagation(self):
+        """ Simple back propagation """
+        
         # Gets the error contribution at the output layer only.
         self.calcErrorAtOutput()
         
@@ -193,7 +201,6 @@ class NetworkTrainer:
             
             print("hiddenDerivAndErr: \n", hiddenDerivAndErr)
             
-            
             transHiddenDerivAndErr = np.matrix.transpose(hiddenDerivAndErr)
             
             deltaWeightsItoH = np.dot(transHiddenDerivAndErr, nd.layerActivations[nd.numOfLayers-j])
@@ -206,8 +213,11 @@ class NetworkTrainer:
             nd.layerGradients[nd.numOfLayers-j] = hiddenDerivAndErr
             
             j+=1
+        # For each set of weights per layer, update them.
+        for i in range(len(nd.layerWeights)):
+            nd.layerWeights[i] = nd.layerWeights[i] - nd.learningRate * nd.layerGradients[i]
         
-        
+        print("Updated Weights: \n", nd.layerWeights)
     
     def rPropagation(self):
         return
