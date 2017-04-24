@@ -70,7 +70,7 @@ class NetworkTrainer:
 
             if (nd.trainingTechnique == "backprop"):
                 self.backPropagation()
-                   
+                print("Layer Gradients: \n", nd.layerGradients)
             elif (nd.trainingTechnique == 'rprop'):
                 self.rPropagation()
                 
@@ -186,8 +186,11 @@ class NetworkTrainer:
             nd.layerGradients[nd.numOfLayers-j] = hiddenDerivAndErr
             
             j+=1
+        # For each set of weights per layer, update them.
+        for i in range(len(nd.layerWeights)):
+            nd.layerWeights[i] = nd.layerWeights[i] - nd.learningRate * nd.layerGradients[i]
         
-        
+        print("Updated Weights: \n", nd.layerWeights)
     
     def rPropagation(self):
         return
