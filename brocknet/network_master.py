@@ -8,9 +8,8 @@ class, where this class will manage the network and perform the desired actions
 '''
 from brocknet import network_data
 from brocknet import network_trainer
+from brocknet import network_tester
 import sys
-import network_tester
-
 class NetworkMaster:
     
     global nd, nt
@@ -131,18 +130,18 @@ class NetworkMaster:
         
 
 ##RAW CODE FOR TESTING PURPOSES
- 
-layers = [[4,"sigmoid"],[3,"sigmoid"],[1,"sigmoid"]]
- 
-testNetwork = NetworkMaster()
- 
-testNetwork.createNetwork(layers, learningRate=0.2, weightRange=0.6)
- 
-testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
-    
-testNetwork.trainNetwork()
-
-testNetwork.testNetwork("parity4.txt", ",")
-        
+#  
+# layers = [[4,"sigmoid"],[3,"sigmoid"],[1,"sigmoid"]]
+#  
+# testNetwork = NetworkMaster()
+#  
+# testNetwork.createNetwork(layers, learningRate=0.2, weightRange=0.6)
+#  
+# testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
+#     
+# testNetwork.trainNetwork()
+# 
+# testNetwork.testNetwork("parity4.txt", ",")
+#         
         
         

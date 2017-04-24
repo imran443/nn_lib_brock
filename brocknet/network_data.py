@@ -87,7 +87,7 @@ class NetworkData:
         Also loads the training data's expected output list
         Both lists must be in the same order, where trainingData[i] should match the trainingDataExpected[i] data
         """
-        
+
         try:
             self.trainingData = np.loadtxt(fname, delimiter=delim)
             trainingDataExpected = np.loadtxt(ename, delimiter=delim)

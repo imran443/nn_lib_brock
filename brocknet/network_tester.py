@@ -25,7 +25,7 @@ class NetworkTester:
             self.testingData = np.loadtxt(fname, delimiter=delim)
             
         except:
-            sys.stderr.write("ERROR: Issue loading training data, please double check file name and delimiter")
+            sys.stderr.write("ERROR: Issue loading testing data, please double check file name and delimiter")
             
         
         #Test on the dataset
