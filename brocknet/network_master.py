@@ -134,7 +134,7 @@ class NetworkMaster:
 # 
 # testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
 # 
-# #testNetwork.set(holdoutTechnique="kfold", holdoutAmt = 10)
+# testNetwork.set(holdoutTechnique="kfold", holdoutAmt = 10)
 # 
 # testNetwork.set(weightDecay = True, weightDecayFactor=0.10)
 # 

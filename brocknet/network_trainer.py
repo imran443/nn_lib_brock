@@ -23,7 +23,7 @@ class NetworkTrainer:
         
         global nd
         
-        for i in range (1):
+        for i in range (nd.epochs):
             
             np.random.shuffle(nd.trainingData)
             
@@ -217,7 +217,7 @@ class NetworkTrainer:
         """Decays every connections weight by weightDecayFactor percent"""
         
         for l in range (nd.numOfLayers-2):
-           nd.layerWeights[l] = nd.layerWeights[l]*(1-nd.weightDecayFactor)
+            nd.layerWeights[l] = nd.layerWeights[l]*(1-nd.weightDecayFactor)
     
     
     def setInputs(self, inputVector):
