@@ -34,7 +34,6 @@ class NetworkTester:
         
     
     def runData(self):
-        np.random.shuffle(self.testingData)
 
         for i in range (len(self.testingData)):            
             self.nt.setInputs(np.array(self.testingData[i])) 

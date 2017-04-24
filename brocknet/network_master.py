@@ -42,14 +42,7 @@ class NetworkMaster:
         
         for item in nd.trainingData:
             print(item.inputData, item.expectedOutput)
-    
-    
-    def detailedOutput(self, toPrint):
-        """Turn detailed printing on or off"""
-        global nd
         
-        nd.setPrinting(toPrint)
-    
     
     def createNetwork(self, layers, 
                       learningTechnique="backprop", 

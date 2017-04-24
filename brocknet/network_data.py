@@ -13,8 +13,6 @@ from brocknet import training_example
 
 
 class NetworkData:
-    printInfo = True
-
     numOfLayers = 0
 
     epochs = 1
@@ -166,13 +164,6 @@ class NetworkData:
             
     def setLayers(self, layers):
         self.networkLayers = layers;
-        
-    def setPrinting(self, toPrint):
-        if type(toPrint == bool):
-            self.printInfo = toPrint
-            print ("Detailed system printing set to " + str(toPrint))
-        else:
-            print ("System printing NOT updated: Must pass a boolean True or False")
         
     
         
