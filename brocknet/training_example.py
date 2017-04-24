@@ -2,6 +2,8 @@
 Created on Apr 23, 2017
 
 @author: Matthew Kirchhof, Imran Qureshi
+
+The object that holds a single training examples input and expected output
 '''
 
 class TrainingExample():

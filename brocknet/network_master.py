@@ -6,9 +6,10 @@ Created on Apr 21, 2017
 The master class users will import into their projects. They will only call commands from this
 class, where this class will manage the network and perform the desired actions
 '''
-from network_data import NetworkData
-from network_trainer import NetworkTrainer
+from brocknet import network_data
+from brocknet import network_trainer
 import sys
+
 
 class NetworkMaster():
     
@@ -67,7 +68,7 @@ class NetworkMaster():
         """
         global nd
         
-        nd = NetworkData()
+        nd = network_data.NetworkData()
         
         nd.setLearningTechnique(learningTechnique)
         nd.setEpochs(epochs)
@@ -115,7 +116,7 @@ class NetworkMaster():
             sys.stderr.write("  ERROR: Must load training data!")
             return
             
-        nt = NetworkTrainer(nd)
+        nt = network_trainer.NetworkTrainer(nd)
         
         if (nd.holdoutTechnique == "holdout"):
             nt.holdout()

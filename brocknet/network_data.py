@@ -6,9 +6,10 @@ Created on Apr 21, 2017
 The main object which holds all network information and settings
 '''
 
-from training_example import TrainingExample
 import numpy as np
 import sys
+from brocknet import training_example
+
 
 class NetworkData():
     printInfo = True
@@ -38,7 +39,7 @@ class NetworkData():
     layerOutputTarget = None
     layerSums = None
     layerActivations = None
-    layerError = None        
+    layerError = None
         
 
     def buildNetwork(self, layers):
@@ -96,7 +97,7 @@ class NetworkData():
         combinedTrainingData = []
         
         for i in range (0, len(self.trainingData)):
-            temp = TrainingExample(self.trainingData[i],trainingDataExpected[i])
+            temp = training_example.TrainingExample(self.trainingData[i],trainingDataExpected[i])
             combinedTrainingData.append(temp)
                     
         print (combinedTrainingData)
