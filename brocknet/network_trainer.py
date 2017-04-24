@@ -10,6 +10,8 @@ import sys
 
 class NetworkTrainer:
     global nd
+    
+    accuracyCount = 0
     np.random.seed(1)
     
     def __init__(self, networkData):
@@ -20,17 +22,19 @@ class NetworkTrainer:
         """
         Withholds holdoutAmt percent of the data from training for use in testing
         """
-        
         global nd
+        # Randomize the training data before split.
+        np.random.shuffle(nd.trainingData)
         
-        for i in range (nd.epochs):
+        splitPt = int( len(nd.trainingData) * (1-nd.holdoutAmt) )
+        
+        trainingSet = nd.trainingData[0:splitPt]
+        testingSet = nd.trainingData[splitPt+1:len(nd.trainingData)]
+        
+        for i in range (1):
+            print("Epoch " + str(i+1) +": \n")
             
-            np.random.shuffle(nd.trainingData)
-            
-            splitPt = int( len(nd.trainingData) * (1-nd.holdoutAmt) )
-            
-            trainingSet = nd.trainingData[0:splitPt]
-            testingSet = nd.trainingData[splitPt+1:len(nd.trainingData)]
+            np.random.shuffle(trainingSet)
             
             # Trains the network for all data sets 
             self.trainNetwork(trainingSet)
@@ -79,24 +83,28 @@ class NetworkTrainer:
         
         for i in range(1):
             # Load in our input
-            self.setInputs(np.array(trainingSet[i].inputData)) 
+            self.setInputs(trainingSet[i].inputData) 
             
             # Special case of one output node, must make a single element list
             if (nd.networkLayers[nd.numOfLayers-1][0] == 1):
                 self.setExpectedOutput(np.array([trainingSet[i].expectedOutput]))
             else:
                 self.setExpectedOutput(np.array(trainingSet[i].expectedOutput))
-                
+            
             self.forwardPass()
-
+            self.accuracyOfNN()
+            
+            print("Layer Activations: \n", nd.layerActivations)
+            print("Layer Weights: \n", nd.layerWeights)
+             
             if (nd.trainingTechnique == "backprop"):
                 self.backPropagation()
-                print("Layer Gradients: \n", nd.layerGradients)
+                self.updateWeights()
+                 
             elif (nd.trainingTechnique == 'rprop'):
                 self.rPropagation()
                 
-
-    
+                
     def forwardPass(self):
         """
         The base forward pass of the network
@@ -108,9 +116,6 @@ class NetworkTrainer:
         for i in range(1, nd.numOfLayers):
             nd.layerSums[i-1] = np.dot(nd.layerActivations[i-1], nd.layerWeights[i-1])
             nd.layerActivations[i] = self.activationFunction(nd.layerSums[i-1] + nd.layerBias[i], nd.networkLayers[i][1], False)
-        print("Layer Sums: \n", nd.layerSums)
-        print("Layer Weights: \n", nd.layerWeights)
-        print("Layer Activations: \n", nd.layerActivations)
         
     
     
@@ -131,17 +136,17 @@ class NetworkTrainer:
                 output = outputLayer[0, i]
                 target = nd.layerOutputTarget[i]
                 # Stores the error for each output node into a array
-                errContribution[i] = output - target
+                errContribution[0, i] = output - target
             except:
                 sys.stderr.write("  ERROR: the expected output file and output layer do not match!")
         
         # Stores the errContribution in a list.
-        nd.layerErrors[nd.numOfLayers-2] = errContribution
-      
+        nd.layerErrors[nd.numOfLayers-2] = errContribution  
         
-    
     def backPropagation(self):
-        """ Simple back propagation """
+        """ 
+        Simple back propagation method to help calculate the gradients.
+        """
         
         # Gets the error contribution at the output layer only.
         self.calcErrorAtOutput()
@@ -157,13 +162,13 @@ class NetworkTrainer:
         # Send output values into derivative of activation function.
         deriveOutput = self.activationFunction(outputLayer, "sigmoid", True)
         
-        print("Derived Output Layer: \n", deriveOutput)
-        print("Error Output Layer: \n", errContribution)
+        #print("Derived Output Layer: \n", deriveOutput)
+        #print("Error Output Layer: \n", errContribution)
         
         # Multiply the derived values with the error for the output layer.
         derivAndErr = deriveOutput * errContribution
         
-        print("Derivative and Error: \n", derivAndErr)
+        #print("Derivative and Error: \n", derivAndErr)
         
         # Transpose the array for easier matrix multiplication.
         transDerivAndErr = np.matrix.transpose(derivAndErr)
@@ -174,7 +179,7 @@ class NetworkTrainer:
         # Transpose again to fix the alignment of values.
         nd.layerGradients[nd.numOfLayers-2] = np.matrix.transpose(deltaWeightsHtoO)
         
-        print("Delta weights HtoO: \n ", nd.layerGradients[nd.numOfLayers-2])
+        #print("Delta weights HtoO: \n ", nd.layerGradients[nd.numOfLayers-2])
         
         # Start at 2, the layerWeights is 1 size less than the layerActivation list.
         for i in range(2, nd.numOfLayers):
@@ -188,7 +193,7 @@ class NetworkTrainer:
             # Calculates the error at the hidden layer using the weight connections of this layer and the next.
             errContributionHidden = np.dot(nd.layerErrors[nd.numOfLayers-i], hiddenWeightTrans)
             
-            print("errContributionHidden: \n", errContributionHidden)
+            #print("errContributionHidden: \n", errContributionHidden)
             
             # Stores the hidden layer error.
             nd.layerErrors[nd.numOfLayers-j] =  errContributionHidden
@@ -199,7 +204,7 @@ class NetworkTrainer:
             # Multiply the derivative of the hidden multiplied with the error of that hidden layer.
             hiddenDerivAndErr = derivHidden * errContributionHidden
             
-            print("hiddenDerivAndErr: \n", hiddenDerivAndErr)
+            #print("hiddenDerivAndErr: \n", hiddenDerivAndErr)
             
             transHiddenDerivAndErr = np.matrix.transpose(hiddenDerivAndErr)
             
@@ -207,17 +212,22 @@ class NetworkTrainer:
             
             deltaWeightsItoH = np.matrix.transpose(deltaWeightsItoH)
             
-            print("deltaWeightsItoH: \n", deltaWeightsItoH)
+            #print("deltaWeightsItoH: \n", deltaWeightsItoH)
             
             # Store the hidden layers gradients. 
             nd.layerGradients[nd.numOfLayers-j] = hiddenDerivAndErr
             
             j+=1
+        
+    def updateWeights(self):
+        """ Used to update the weights of each layer after a certain learning technique."""
+        
         # For each set of weights per layer, update them.
         for i in range(len(nd.layerWeights)):
             nd.layerWeights[i] = nd.layerWeights[i] - nd.learningRate * nd.layerGradients[i]
         
-        print("Updated Weights: \n", nd.layerWeights)
+        #print("Updated Weights: \n", nd.layerWeights)
+        
     
     def rPropagation(self):
         return
@@ -249,13 +259,29 @@ class NetworkTrainer:
         """Sets the last layers expected outputs to the current input training examples expected output"""
 
         global nd
-        print("expected Value: \n", expectedValue)
+        
         try:
             nd.layerOutputTarget = expectedValue
         except:
             sys.stderr.write("  ERROR: Mismatched input and output. Please ensure your input nodes match the size of your input data!")
     
-
+    def accuracyOfNN(self):
+        """ Used to check the accuracy of the network by how many samples it correctly identifies."""
+        outputLayer = nd.layerActivations[nd.numOfLayers-1].copy()
+        
+        
+        # Step wise function for the output layer
+        for i in range(outputLayer.shape[1]):
+            if(outputLayer[0, i] > 0.5):
+                outputLayer[0, i] = 1
+            elif(outputLayer[0, i]<0.5):
+                outputLayer[0, i] = 0
+                
+        # Compare the current output to the expected to check accuracy.
+        if(np.array_equal(outputLayer, nd.layerOutputTarget)):
+            self.accuracyCount+=1
+            print("Accuracy Count: ", self.accuracyCount)
+        
     ##########
     ##neuron specific methods
     ##########

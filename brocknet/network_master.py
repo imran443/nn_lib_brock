@@ -125,22 +125,20 @@ class NetworkMaster:
         
 
 ##RAW CODE FOR TESTING PURPOSES
-# 
-# layers = [[4,"sigmoid"],[2,"sigmoid"],[1,"sigmoid"]]
-# 
-# testNetwork = NetworkMaster()
-# 
-# testNetwork.createNetwork("backprop", layers, learningRate=0.2, weightRange=0.6)
-# 
-# testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
-# 
-# testNetwork.set(holdoutTechnique="kfold", holdoutAmt = 10)
-# 
-# testNetwork.set(weightDecay = True, weightDecayFactor=0.10)
-# 
-# testNetwork.detailedOutput(True)
-# 
-# testNetwork.trainNetwork()
+ 
+layers = [[4,"sigmoid"],[2,"sigmoid"],[2,"sigmoid"]]
+ 
+testNetwork = NetworkMaster()
+# Required layers
+testNetwork.createNetwork(layers, "backprop", learningRate=0.5, weightRange=0.5)
+ 
+testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
+ 
+#testNetwork.set(holdoutTechnique="kfold", holdoutAmt = 10)
+ 
+#testNetwork.set(weightDecay = True, weightDecayFactor=0.10)
+ 
+testNetwork.trainNetwork()
         
         
         
