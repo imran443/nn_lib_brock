@@ -9,6 +9,7 @@ class, where this class will manage the network and perform the desired actions
 from brocknet import network_data
 from brocknet import network_trainer
 import sys
+import network_tester
 
 class NetworkMaster:
     
@@ -53,9 +54,9 @@ class NetworkMaster:
     def createNetwork(self, layers, 
                       learningTechnique="backprop", 
                       holdoutTechnique="holdout",
-                      epochs = 50, 
-                      learningRate=0.3, 
-                      weightRange=0.5, 
+                      epochs = 100, 
+                      learningRate=0.3,
+                      weightRange=0.5,
                       momentum=False, momentumAlpha=0.0, 
                       bias=False, biasRange = 0.0,
                       weightDecay=False, weightDecayFactor=0.05
@@ -109,7 +110,7 @@ class NetworkMaster:
     
     def trainNetwork(self):
         """Creates our network trainer object, passes it our network data and calls the specified holdout training method"""
-        global nd
+        global nd, nt
         
         if (nd.trainingData is None):
             sys.stderr.write("  ERROR: Must load training data!")
@@ -122,25 +123,33 @@ class NetworkMaster:
             
         elif(nd.holdoutTechnique == "kfold"):
             nt.kfold()
+            
+    def testNetwork(self, fileName, delim):
+        global nd, nt
+        
+        try:
+            print ("Testing Network..")
+            
+            ntest = network_tester.NetworkTester(nd, nt)
+            ntest.testNetwork(fileName, delim)
+            
+        except NameError:
+            sys.stderr.write("  ERROR: Must create/train network before testing!")
         
 
 ##RAW CODE FOR TESTING PURPOSES
-# 
-# layers = [[4,"sigmoid"],[2,"sigmoid"],[1,"sigmoid"]]
-# 
-# testNetwork = NetworkMaster()
-# 
-# testNetwork.createNetwork("backprop", layers, learningRate=0.2, weightRange=0.6)
-# 
-# testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
-# 
-# testNetwork.set(holdoutTechnique="kfold", holdoutAmt = 10)
-# 
-# testNetwork.set(weightDecay = True, weightDecayFactor=0.10)
-# 
-# testNetwork.detailedOutput(True)
-# 
-# testNetwork.trainNetwork()
+ 
+layers = [[4,"sigmoid"],[3,"sigmoid"],[1,"sigmoid"]]
+ 
+testNetwork = NetworkMaster()
+ 
+testNetwork.createNetwork(layers, learningRate=0.2, weightRange=0.6)
+ 
+testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
+    
+testNetwork.trainNetwork()
+
+testNetwork.testNetwork("parity4.txt", ",")
         
         
         
