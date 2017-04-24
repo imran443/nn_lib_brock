@@ -6,7 +6,7 @@ Created on Apr 23, 2017
 from setuptools import setup
 
 setup(name='brocknet',
-      version='0.26',
+      version='0.27',
       description='Brock University Python neural network library',
       url='',
       author='Matthew Kirchhof, Imran Qureshi',
