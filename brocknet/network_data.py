@@ -1,10 +1,21 @@
-from training_example import TrainingExample
+'''
+Created on Apr 21, 2017
+
+@author: Matthew Kirchhof, Imran Qureshi
+
+The main object which holds all network information and settings
+'''
+
 import numpy as np
 import sys
+from brocknet import training_example
+
 
 
 class NetworkData:
     printInfo = True
+
+    numOfLayers = 0
 
     epochs = 1
     learningRate = 0.3
@@ -18,7 +29,8 @@ class NetworkData:
     momentumAlpha = 0.0
     biasUse = False
     biasRange = 0.0 # Similar to randomRange
-    numOfLayers = 0
+    weightDecay = False
+    weightDecayFactor = 0.05 #The percentage a weight decays by
     
     trainingData = None
     
@@ -33,9 +45,11 @@ class NetworkData:
     layerErrors = None        
     layerGradients = None 
        
-    # Initializes the networks data class
-    # Accepts a 2D list of layer information, each item in "layers" contains the layer size, and its activation function
     def buildNetwork(self, layers):
+        """
+        Initializes the networks data class
+        Accepts a 2D list of layer information, each item in "layers" contains the layer size, and its activation function
+        """
         
         self.networkLayers = layers
         self.numOfLayers = len(layers)
@@ -70,6 +84,12 @@ class NetworkData:
     
     # Loads the data of the two specified files (Training, Expected)
     def loadTrainingData(self, fname, ename, delim):
+        """
+        Loads training data from the textfile 'fname' by line, split via a specified delimiter
+        Also loads the training data's expected output list
+        Both lists must be in the same order, where trainingData[i] should match the trainingDataExpected[i] data
+        """
+        
         try:
             self.trainingData = np.loadtxt(fname, delimiter=delim)
             trainingDataExpected = np.loadtxt(ename, delimiter=delim)
@@ -81,10 +101,16 @@ class NetworkData:
             
     # Combine the data so that the expected answer is paired up with its respective data.
     def combineData(self, trainingDataExpected):
+        """
+        Combines each training example piece with its matching expected output into an object
+        Returns the resulting list of TrainingExample objects
+        """
+        
         combinedTrainingData = []
         
+
         for i in range (len(self.trainingData)):
-            temp = TrainingExample(self.trainingData[i], trainingDataExpected[i])
+            temp = training_example.TrainingExample(self.trainingData[i], trainingDataExpected[i])
             combinedTrainingData.append(temp)
         self.trainingData = combinedTrainingData
         
@@ -92,6 +118,7 @@ class NetworkData:
     ##SETTER FUNCTIONS
     ######
     def setLearningTechnique(self, lt):
+        print (lt)
         self.learningTechnique = lt
         print ("Learning technique set to " + lt)
         
@@ -128,6 +155,14 @@ class NetworkData:
             print ("Using bias with a weight of " + str(amt))
         else:
             print ("Not using bias")
+            
+    def setWeightDecay(self, wd, wdf):
+        self.weightDecay = wd
+        self.weightDecayFactor = wdf
+        if (wd):
+            print ("Using weight decay with a weight decay percentage of " + str(wdf))
+        else:
+            print ("Not using weight decay")
             
     def setLayers(self, layers):
         self.networkLayers = layers;

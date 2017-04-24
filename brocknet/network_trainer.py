@@ -1,3 +1,10 @@
+'''
+Created on Apr 21, 2017
+
+@author: Matthew Kirchhof, Imran Qureshi
+
+The class which trains a NetworkData object with its selected settings
+'''
 import numpy as np
 import sys
 
@@ -10,9 +17,13 @@ class NetworkTrainer:
         nd = networkData
     
     def holdout(self):
+        """
+        Withholds holdoutAmt percent of the data from training for use in testing
+        """
+        
         global nd
         
-        for i in range (1):
+        for i in range (nd.epochs):
             
             np.random.shuffle(nd.trainingData)
             
@@ -26,6 +37,11 @@ class NetworkTrainer:
     
     
     def kfold(self):
+        """
+        Runs epoch number of times
+        shuffles the data for each epoch, splits the data into holdoutAmt lists and runs system training on all subsets besides the current k set.
+        """
+        
         global nd
         
         # For every epoch
@@ -54,6 +70,11 @@ class NetworkTrainer:
         
     # This function is used to train the network.
     def trainNetwork(self, trainingSet):
+        """ 
+        Controls the training algorithms used and overall structure of the networks training
+        Accepts a list of TrainingExample objects to train the network on
+        """
+        
         global nd
         
         for i in range(1):
@@ -74,10 +95,12 @@ class NetworkTrainer:
             elif (nd.trainingTechnique == 'rprop'):
                 self.rPropagation()
                 
-       
-        
-    # The base forward pass of the network
+
+    
     def forwardPass(self):
+        """
+        The base forward pass of the network
+        """
         global nd
         
         # Runs for n hidden layers and the 1 output layer.
@@ -90,8 +113,11 @@ class NetworkTrainer:
         print("Layer Activations: \n", nd.layerActivations)
         
     
-    # Calculates the error in each output node
+    
     def calcErrorAtOutput(self):
+        """ 
+        Calculates the error in each output node
+        """
         global nd
         
         # Grab the output layer
@@ -113,8 +139,10 @@ class NetworkTrainer:
         nd.layerErrors[nd.numOfLayers-2] = errContribution
       
         
-    # Simple back propagation 
+    
     def backPropagation(self):
+        """ Simple back propagation """
+        
         # Gets the error contribution at the output layer only.
         self.calcErrorAtOutput()
         
@@ -173,7 +201,6 @@ class NetworkTrainer:
             
             print("hiddenDerivAndErr: \n", hiddenDerivAndErr)
             
-            
             transHiddenDerivAndErr = np.matrix.transpose(hiddenDerivAndErr)
             
             deltaWeightsItoH = np.dot(transHiddenDerivAndErr, nd.layerActivations[nd.numOfLayers-j])
@@ -195,8 +222,17 @@ class NetworkTrainer:
     def rPropagation(self):
         return
     
-    # Sets the input vector to the as the input layer.
+
+    def decayWeights(self):
+        """Decays every connections weight by weightDecayFactor percent"""
+        
+        for l in range (nd.numOfLayers-2):
+            nd.layerWeights[l] = nd.layerWeights[l]*(1-nd.weightDecayFactor)
+    
+    
     def setInputs(self, inputVector):
+        """Sets the first layers activation layer to the current input training example"""
+        
         global nd
         
         # Resize the inputVector to have a (row, columns) for later dot product operations.
@@ -210,6 +246,8 @@ class NetworkTrainer:
         
         
     def setExpectedOutput(self, expectedValue):
+        """Sets the last layers expected outputs to the current input training examples expected output"""
+
         global nd
         print("expected Value: \n", expectedValue)
         try:
@@ -222,9 +260,9 @@ class NetworkTrainer:
     ##neuron specific methods
     ##########
     
-    #All activation functions along with their derived counterparts
     def activationFunction(self, x, func ,derive = False):
-
+        """All activation functions along with their derived counterparts"""
+        
         if(func == "sigmoid"):
             if(derive == True):
 
