@@ -1,5 +1,5 @@
 
-class NetworkTester():
+class NetworkTester:
     
     def __init__(self, networkData):
         nd = networkData

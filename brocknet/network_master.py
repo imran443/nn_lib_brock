@@ -34,7 +34,13 @@ class NetworkMaster:
         global nd
         
         for item in nd.trainingData:
-            print(item[0], item[1])
+            print(item.inputData, item.expectedOutput)
+    
+    
+    def detailedOutput(self, toPrint):
+        global nd
+        
+        nd.setPrinting(toPrint)
     
     
     # Creates our network data object and sets its values accordingly
@@ -108,7 +114,7 @@ class NetworkMaster:
 
 ##RAW CODE FOR TESTING PURPOSES
 
-layers = [[4,"sigmoid"],[3,"sigmoid"],[1,"sigmoid"]]
+layers = [[4,"sigmoid"],[2,"sigmoid"],[1,"sigmoid"]]
 
 testNetwork = NetworkMaster()
 
@@ -116,8 +122,7 @@ testNetwork.createNetwork("backprop", layers, learningRate=0.2, weightRange=0.6)
 
 testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
 
-testNetwork.set(momentum=True, momentumAlpha=0.3)
-
+testNetwork.detailedOutput(True)
 testNetwork.trainNetwork()
         
         

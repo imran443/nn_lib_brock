@@ -1,14 +1,18 @@
+from training_example import TrainingExample
 import numpy as np
 import sys
 
+
 class NetworkData:
+    printInfo = True
+
     epochs = 1
     learningRate = 0.3
     randomRange = 0.5 # The range that neuron weight values can be randomized to (0.5 equals the range -0.5 to 0.5)
     
     trainingTechnique = "backprop"
     holdoutTechnique = "holdout"
-    holdoutPercent = 0.3 # The percentage of training data to be withheld for testing only
+    holdoutAmt = 0.3 # The percentage OR number of k folds, dependent on the hold out technique above
     
     momentumUse = False
     momentumAlpha = 0.0
@@ -20,14 +24,15 @@ class NetworkData:
     
     networkLayers = None # Will contain the raw layer data, this is used to determine set layer activation functions
 
-    # The layers that contain connection weight values, this is initialized on networkdata creation
+    # The layers that contain connection weight values, this is initialized on network data creation
     # layerWeights[0] are the connections between input and first hidden layers
     layerWeights = None
     layerOutputTarget = None
     layerSums = None
     layerActivations = None
-    layerError = None        
-        
+    layerErrors = None        
+    layerGradients = None 
+       
     # Initializes the networks data class
     # Accepts a 2D list of layer information, each item in "layers" contains the layer size, and its activation function
     def buildNetwork(self, layers):
@@ -36,19 +41,20 @@ class NetworkData:
         self.numOfLayers = len(layers)
         
         # Initialize our np array lists
-        
         # Stores the sums of each layers resulting dot product.
         self.layerSums = [None] * (self.numOfLayers-1)
         
         # Stores the activation result of a nodes sums (Basically the output of nodes)
         self.layerActivations = [None] * self.numOfLayers 
         
-        # Stores the connecting weights between layers
-        self.layerWeights = [None] * (self.numOfLayers - 1) 
-        self.layerError = [None] * self.numOfLayers
+        # Stores the connecting weights between layers.
+        self.layerWeights = [None] * (self.numOfLayers - 1)
         
-        # These values will be set according to our desired output
-        self.layerOutputTarget = np.zeros((1,layers[self.numOfLayers-1][0])) 
+        # Stores the gradient values for n hidden layers and output layers.
+        self.layerGradients = [None] * (self.numOfLayers - 1) 
+        
+        # Will hold all of the error arrays for each layer.
+        self.layerErrors = [None] * (self.numOfLayers-1)
         
         # Random weights will be generated for each layers' connections
         for i in range (0, self.numOfLayers-1):
@@ -67,8 +73,9 @@ class NetworkData:
         try:
             self.trainingData = np.loadtxt(fname, delimiter=delim)
             trainingDataExpected = np.loadtxt(ename, delimiter=delim)
-            self.combineData(trainingDataExpected)
             
+            # Combine the data together into 1 array.
+            self.combineData(trainingDataExpected)
         except:
             sys.stderr.write("ERROR: Issue loading training data, please double check file name and delimiter")
             
@@ -77,9 +84,8 @@ class NetworkData:
         combinedTrainingData = []
         
         for i in range (len(self.trainingData)):
-            
-            combinedTrainingData.append([self.trainingData[i], trainingDataExpected[i]])
-            
+            temp = TrainingExample(self.trainingData[i], trainingDataExpected[i])
+            combinedTrainingData.append(temp)
         self.trainingData = combinedTrainingData
         
     ######
@@ -91,8 +97,7 @@ class NetworkData:
         
     def setHoldoutTechnique(self, ht, val):
         self.holdoutTechnique = ht
-        
-        holdoutPercent = val
+        self.holdoutAmt = val
         
         print ("Holdout technique set to " + ht)
         
@@ -126,6 +131,13 @@ class NetworkData:
             
     def setLayers(self, layers):
         self.networkLayers = layers;
+        
+    def setPrinting(self, toPrint):
+        if type(toPrint == bool):
+            self.printInfo = toPrint
+            print ("Detailed system printing set to " + str(toPrint))
+        else:
+            print ("System printing NOT updated: Must pass a boolean True or False")
         
     
         
