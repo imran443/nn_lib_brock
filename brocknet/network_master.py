@@ -8,8 +8,8 @@ class, where this class will manage the network and perform the desired actions
 '''
 from brocknet import network_data
 from brocknet import network_trainer
+from brocknet import network_tester
 import sys
-
 class NetworkMaster:
     
     global nd, nt
@@ -41,21 +41,14 @@ class NetworkMaster:
         
         for item in nd.trainingData:
             print(item.inputData, item.expectedOutput)
-    
-    
-    def detailedOutput(self, toPrint):
-        """Turn detailed printing on or off"""
-        global nd
         
-        nd.setPrinting(toPrint)
-    
     
     def createNetwork(self, layers, 
                       learningTechnique="backprop", 
                       holdoutTechnique="holdout",
-                      epochs = 50, 
-                      learningRate=0.3, 
-                      weightRange=0.5, 
+                      epochs = 100, 
+                      learningRate=0.3,
+                      weightRange=0.5,
                       momentum=False, momentumAlpha=0.0, 
                       bias=False, biasRange = 0.0,
                       weightDecay=False, weightDecayFactor=0.05
@@ -109,7 +102,7 @@ class NetworkMaster:
     
     def trainNetwork(self):
         """Creates our network trainer object, passes it our network data and calls the specified holdout training method"""
-        global nd
+        global nd, nt
         
         if (nd.trainingData is None):
             sys.stderr.write("  ERROR: Must load training data!")
@@ -122,6 +115,18 @@ class NetworkMaster:
             
         elif(nd.holdoutTechnique == "kfold"):
             nt.kfold()
+            
+    def testNetwork(self, fileName, delim):
+        global nd, nt
+        
+        try:
+            print ("Testing Network..")
+            
+            ntest = network_tester.NetworkTester(nd, nt)
+            ntest.testNetwork(fileName, delim)
+            
+        except NameError:
+            sys.stderr.write("  ERROR: Must create/train network before testing!")
         
 
 ##RAW CODE FOR TESTING PURPOSES
@@ -140,5 +145,6 @@ testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
  
 testNetwork.trainNetwork()
         
+
         
         

@@ -13,8 +13,6 @@ from brocknet import training_example
 
 
 class NetworkData:
-    printInfo = True
-
     numOfLayers = 0
 
     epochs = 1
@@ -89,7 +87,7 @@ class NetworkData:
         Also loads the training data's expected output list
         Both lists must be in the same order, where trainingData[i] should match the trainingDataExpected[i] data
         """
-        
+
         try:
             self.trainingData = np.loadtxt(fname, delimiter=delim)
             trainingDataExpected = np.loadtxt(ename, delimiter=delim)
@@ -166,13 +164,6 @@ class NetworkData:
             
     def setLayers(self, layers):
         self.networkLayers = layers;
-        
-    def setPrinting(self, toPrint):
-        if type(toPrint == bool):
-            self.printInfo = toPrint
-            print ("Detailed system printing set to " + str(toPrint))
-        else:
-            print ("System printing NOT updated: Must pass a boolean True or False")
         
     
         
