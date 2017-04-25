@@ -134,7 +134,7 @@ class NetworkTrainer:
         for i in range(outputLayer.shape[1]):
             try:
                 output = outputLayer[0, i]
-                target = nd.layerOutputTarget[i]
+                target = nd.layerOutputTarget[0, i]
                 # Stores the error for each output node into a array
                 errContribution[0, i] = output - target
             except:
@@ -158,17 +158,17 @@ class NetworkTrainer:
         outputLayer = nd.layerActivations[nd.numOfLayers-1]
         
         print("Output Layer: \n", outputLayer)
-        
+        print("Expected Layer; \n", nd.layerOutputTarget)
         # Send output values into derivative of activation function.
         deriveOutput = self.activationFunction(outputLayer, "sigmoid", True)
         
-        #print("Derived Output Layer: \n", deriveOutput)
-        #print("Error Output Layer: \n", errContribution)
+        print("Derived Output Layer: \n", deriveOutput)
+        print("Error Output Layer: \n", errContribution)
         
         # Multiply the derived values with the error for the output layer.
         derivAndErr = deriveOutput * errContribution
         
-        #print("Derivative and Error: \n", derivAndErr)
+        print("Derivative and Error: \n", derivAndErr)
         
         # Transpose the array for easier matrix multiplication.
         transDerivAndErr = np.matrix.transpose(derivAndErr)
@@ -179,7 +179,7 @@ class NetworkTrainer:
         # Transpose again to fix the alignment of values.
         nd.layerGradients[nd.numOfLayers-2] = np.matrix.transpose(deltaWeightsHtoO)
         
-        #print("Delta weights HtoO: \n ", nd.layerGradients[nd.numOfLayers-2])
+        print("Delta weights HtoO: \n ", nd.layerGradients[nd.numOfLayers-2])
         
         # Start at 2, the layerWeights is 1 size less than the layerActivation list.
         for i in range(2, nd.numOfLayers):
@@ -193,7 +193,7 @@ class NetworkTrainer:
             # Calculates the error at the hidden layer using the weight connections of this layer and the next.
             errContributionHidden = np.dot(nd.layerErrors[nd.numOfLayers-i], hiddenWeightTrans)
             
-            #print("errContributionHidden: \n", errContributionHidden)
+            print("errContributionHidden: \n", errContributionHidden)
             
             # Stores the hidden layer error.
             nd.layerErrors[nd.numOfLayers-j] =  errContributionHidden
@@ -204,7 +204,7 @@ class NetworkTrainer:
             # Multiply the derivative of the hidden multiplied with the error of that hidden layer.
             hiddenDerivAndErr = derivHidden * errContributionHidden
             
-            #print("hiddenDerivAndErr: \n", hiddenDerivAndErr)
+            print("hiddenDerivAndErr: \n", hiddenDerivAndErr)
             
             transHiddenDerivAndErr = np.matrix.transpose(hiddenDerivAndErr)
             
@@ -212,7 +212,7 @@ class NetworkTrainer:
             
             deltaWeightsItoH = np.matrix.transpose(deltaWeightsItoH)
             
-            #print("deltaWeightsItoH: \n", deltaWeightsItoH)
+            print("deltaWeightsItoH: \n", deltaWeightsItoH)
             
             # Store the hidden layers gradients. 
             nd.layerGradients[nd.numOfLayers-j] = hiddenDerivAndErr
@@ -226,7 +226,7 @@ class NetworkTrainer:
         for i in range(len(nd.layerWeights)):
             nd.layerWeights[i] = nd.layerWeights[i] - nd.learningRate * nd.layerGradients[i]
         
-        #print("Updated Weights: \n", nd.layerWeights)
+        print("Updated Weights: \n", nd.layerWeights)
         
     
     def rPropagation(self):
@@ -257,8 +257,10 @@ class NetworkTrainer:
         
     def setExpectedOutput(self, expectedValue):
         """Sets the last layers expected outputs to the current input training examples expected output"""
-
         global nd
+        
+        # Resize the inputVector to have a (row, columns) for later dot product operations.
+        expectedValue = np.resize(expectedValue,(1, expectedValue.shape[0]))
         
         try:
             nd.layerOutputTarget = expectedValue
@@ -269,14 +271,13 @@ class NetworkTrainer:
         """ Used to check the accuracy of the network by how many samples it correctly identifies."""
         outputLayer = nd.layerActivations[nd.numOfLayers-1].copy()
         
-        
         # Step wise function for the output layer
         for i in range(outputLayer.shape[1]):
             if(outputLayer[0, i] > 0.5):
                 outputLayer[0, i] = 1
             elif(outputLayer[0, i]<0.5):
                 outputLayer[0, i] = 0
-                
+        
         # Compare the current output to the expected to check accuracy.
         if(np.array_equal(outputLayer, nd.layerOutputTarget)):
             self.accuracyCount+=1
