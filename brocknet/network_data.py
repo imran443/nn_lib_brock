@@ -42,6 +42,11 @@ class NetworkData:
     layerActivations = None
     layerErrors = None        
     layerGradients = None 
+    layerDeltaWeightsPrev = None
+    layerGradientsSums = None
+    layerGradientsSumsPrev = None
+    layerRpropDeltas = None
+    layerLearningVals = None
        
     def buildNetwork(self, layers):
         """
@@ -60,18 +65,32 @@ class NetworkData:
         self.layerActivations = [None] * self.numOfLayers 
         
         # Stores the connecting weights between layers.
-        self.layerWeights = [None] * (self.numOfLayers - 1)
+        self.layerWeights = [None] * (self.numOfLayers-1)
+        
+        # Stores R prop delta values
+        self.layerRpropDeltas = [None] * (self.numOfLayers-1)
         
         # Stores the gradient values for n hidden layers and output layers.
-        self.layerGradients = [None] * (self.numOfLayers - 1) 
+        self.layerGradients = [None] * (self.numOfLayers-1) 
+        
+        # Stores the sum of each layers gradients for batch training.
+        self.layerGradientsSums = [0] * (self.numOfLayers-1)
+        
+        # Stores the previous layer gradients sums.
+        self.layerGradientsSumsPrev = [0] * (self.numOfLayers-1)
         
         # Will hold all of the error arrays for each layer.
         self.layerErrors = [None] * (self.numOfLayers-1)
         
+        # The momentum values list
+        self.layerDeltaWeightsPrev = [None] * (self.numOfLayers-1)
+    
         # Random weights will be generated for each layers' connections
         for i in range (0, self.numOfLayers-1):
             self.layerWeights[i] = np.random.uniform(-self.randomRange, self.randomRange, (layers[i][0],layers[i+1][0]))
-
+            # Delta Matrices created for rProp
+            self.layerRpropDeltas[i] = np.full((layers[i][0], layers[i+1][0]), 0.1)
+        
         # Create random bias values for each layer
         self.layerBias = [None] * self.numOfLayers
         
@@ -117,7 +136,7 @@ class NetworkData:
     ######
     def setLearningTechnique(self, lt):
         print (lt)
-        self.learningTechnique = lt
+        self.trainingTechnique = lt
         print ("Learning technique set to " + lt)
         
     def setHoldoutTechnique(self, ht, val):

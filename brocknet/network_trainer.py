@@ -12,7 +12,7 @@ class NetworkTrainer:
     global nd
     
     accuracyCount = 0
-    np.random.seed(1)
+    #np.random.seed(1)
     
     def __init__(self, networkData):
         global nd
@@ -23,11 +23,12 @@ class NetworkTrainer:
         Withholds holdoutAmt percent of the data from training for use in testing
         """
         global nd
+        
         # Randomize the training data before split.
         np.random.shuffle(nd.trainingData)
         
         splitPt = int( len(nd.trainingData) * (1-nd.holdoutAmt) )
-        
+              
         trainingSet = nd.trainingData[0:splitPt]
         testingSet = nd.trainingData[splitPt+1:len(nd.trainingData)]
         
@@ -38,6 +39,18 @@ class NetworkTrainer:
             
             # Trains the network for all data sets 
             self.trainNetwork(trainingSet)
+            
+            accuracy = self.accuracyOfEpoch()/len(trainingSet)
+            
+            print("Epoch Accuracy: \n", accuracy)
+            
+            # Stops when the network reaches a accuracy of 95%
+            if(accuracy > 0.95):
+                print("Best accuracy for Epoch: \n", accuracy)
+                self.testNetwork(testingSet)
+                accuracy = self.accuracyOfEpoch()/len(testingSet)
+                print("Accuracy For Testing Set: \n", accuracy)
+                return
     
     
     def kfold(self):
@@ -71,8 +84,7 @@ class NetworkTrainer:
                 #train
                 self.trainNetwork(trainingSet)
             
-        
-    # This function is used to train the network.
+    
     def trainNetwork(self, trainingSet):
         """ 
         Controls the training algorithms used and overall structure of the networks training
@@ -81,7 +93,7 @@ class NetworkTrainer:
         
         global nd
         
-        for i in range(1):
+        for i in range(len(trainingSet)):
             # Load in our input
             self.setInputs(trainingSet[i].inputData) 
             
@@ -92,18 +104,42 @@ class NetworkTrainer:
                 self.setExpectedOutput(np.array(trainingSet[i].expectedOutput))
             
             self.forwardPass()
+            # Check the accuracy after each forward pass.
             self.accuracyOfNN()
-            
-            print("Layer Activations: \n", nd.layerActivations)
-            print("Layer Weights: \n", nd.layerWeights)
              
             if (nd.trainingTechnique == "backprop"):
                 self.backPropagation()
                 self.updateWeights()
-                 
-            elif (nd.trainingTechnique == 'rprop'):
-                self.rPropagation()
                 
+            elif (nd.trainingTechnique == 'rprop' or nd.trainingTechnique == 'delta'):
+                self.backPropagation()
+                #print("Layer Gradients Sums: \n", nd.layerGradientsSums)
+        
+        if(nd.trainingTechnique == 'rprop'):
+            self.rPropagation()
+            self.setSumOfPrevGradients()
+            
+        if(nd.trainingTechnique == 'delta'):
+            self.deltaBarDelta()
+            self.setSumOfPrevGradients()
+    
+    def testNetwork(self, testSet):          
+        """ Tests the network after training. """
+        
+        for i in range(len(testSet)):
+            # Load in our input
+            self.setInputs(testSet[i].inputData) 
+            
+            # Special case of one output node, must make a single element list
+            if (nd.networkLayers[nd.numOfLayers-1][0] == 1):
+                self.setExpectedOutput(np.array([testSet[i].expectedOutput]))
+            else:
+                self.setExpectedOutput(np.array(testSet[i].expectedOutput))
+            
+            self.forwardPass()
+            
+            # Check the accuracy after each forward pass.
+            self.accuracyOfNN()    
                 
     def forwardPass(self):
         """
@@ -117,8 +153,6 @@ class NetworkTrainer:
             nd.layerSums[i-1] = np.dot(nd.layerActivations[i-1], nd.layerWeights[i-1])
             nd.layerActivations[i] = self.activationFunction(nd.layerSums[i-1] + nd.layerBias[i], nd.networkLayers[i][1], False)
         
-    
-    
     def calcErrorAtOutput(self):
         """ 
         Calculates the error in each output node
@@ -147,7 +181,6 @@ class NetworkTrainer:
         """ 
         Simple back propagation method to help calculate the gradients.
         """
-        
         # Gets the error contribution at the output layer only.
         self.calcErrorAtOutput()
         
@@ -156,19 +189,14 @@ class NetworkTrainer:
         
         # Grab the output layer, which has the squashed values.
         outputLayer = nd.layerActivations[nd.numOfLayers-1]
+#       print("Input Layer: \n", nd.layerActivations[0])
+#       print("Output Layer: \n", outputLayer)
         
-        print("Output Layer: \n", outputLayer)
-        print("Expected Layer; \n", nd.layerOutputTarget)
         # Send output values into derivative of activation function.
         deriveOutput = self.activationFunction(outputLayer, "sigmoid", True)
-        
-        print("Derived Output Layer: \n", deriveOutput)
-        print("Error Output Layer: \n", errContribution)
-        
+    
         # Multiply the derived values with the error for the output layer.
         derivAndErr = deriveOutput * errContribution
-        
-        print("Derivative and Error: \n", derivAndErr)
         
         # Transpose the array for easier matrix multiplication.
         transDerivAndErr = np.matrix.transpose(derivAndErr)
@@ -177,15 +205,19 @@ class NetworkTrainer:
         deltaWeightsHtoO = np.dot(transDerivAndErr, nd.layerActivations[nd.numOfLayers-2])
         
         # Transpose again to fix the alignment of values.
-        nd.layerGradients[nd.numOfLayers-2] = np.matrix.transpose(deltaWeightsHtoO)
+        deltaWeightsHtoO = np.matrix.transpose(deltaWeightsHtoO)
         
-        print("Delta weights HtoO: \n ", nd.layerGradients[nd.numOfLayers-2])
+        # Stores the delta weight 
+        nd.layerGradients[nd.numOfLayers-2] = deltaWeightsHtoO
+        
+        # Sums up the delta gradients for hidden to output
+        nd.layerGradientsSums[nd.numOfLayers-2] += deltaWeightsHtoO
         
         # Start at 2, the layerWeights is 1 size less than the layerActivation list.
         for i in range(2, nd.numOfLayers):
-            print("Hidden Layer " + str(i-1) + ": \n")
+            
             # The second counter used to store the error value.
-            j = 3
+            j = nd.numOfLayers
             
             # Transpose hidden to output weight matrix.
             hiddenWeightTrans = np.matrix.transpose(nd.layerWeights[nd.numOfLayers-i])
@@ -193,46 +225,161 @@ class NetworkTrainer:
             # Calculates the error at the hidden layer using the weight connections of this layer and the next.
             errContributionHidden = np.dot(nd.layerErrors[nd.numOfLayers-i], hiddenWeightTrans)
             
-            print("errContributionHidden: \n", errContributionHidden)
-            
             # Stores the hidden layer error.
             nd.layerErrors[nd.numOfLayers-j] =  errContributionHidden
             
             # Derive the hidden layer values.
-            derivHidden = self.activationFunction(nd.layerActivations[nd.numOfLayers-i], "sigmoid", True)
+            derivHidden = self.activationFunction(nd.layerActivations[nd.numOfLayers-i], nd.networkLayers[i-1][1], True)
             
             # Multiply the derivative of the hidden multiplied with the error of that hidden layer.
             hiddenDerivAndErr = derivHidden * errContributionHidden
-            
-            print("hiddenDerivAndErr: \n", hiddenDerivAndErr)
-            
+        
             transHiddenDerivAndErr = np.matrix.transpose(hiddenDerivAndErr)
-            
+          
             deltaWeightsItoH = np.dot(transHiddenDerivAndErr, nd.layerActivations[nd.numOfLayers-j])
             
             deltaWeightsItoH = np.matrix.transpose(deltaWeightsItoH)
             
-            print("deltaWeightsItoH: \n", deltaWeightsItoH)
-            
             # Store the hidden layers gradients. 
-            nd.layerGradients[nd.numOfLayers-j] = hiddenDerivAndErr
+            nd.layerGradients[nd.numOfLayers-j] = deltaWeightsItoH
+            
+            # Adds the delta weights for each epoch.
+            nd.layerGradientsSums[nd.numOfLayers-j] += deltaWeightsItoH
             
             j+=1
         
+        # Updates the bias for both hidden and output.
+        nd.layerBias[1] = nd.layerBias[1] + (nd.learningRate * hiddenDerivAndErr)
+        nd.layerBias[2] = nd.layerBias[2] + (nd.learningRate * derivAndErr)
+        
     def updateWeights(self):
-        """ Used to update the weights of each layer after a certain learning technique."""
+        """ Used to update the weights of each layer after a certain learning technique. As well as applies momentum """
         
-        # For each set of weights per layer, update them.
-        for i in range(len(nd.layerWeights)):
-            nd.layerWeights[i] = nd.layerWeights[i] - nd.learningRate * nd.layerGradients[i]
-        
-        print("Updated Weights: \n", nd.layerWeights)
+        if(nd.layerDeltaWeightsPrev[0] is None):
+            # For each set of weights per layer, update them.
+            for i in range(len(nd.layerWeights)):
+                nd.layerWeights[i] = nd.layerWeights[i] - nd.learningRate * nd.layerGradients[i]
+                # Set the momentum matrices for the next pass
+                nd.layerDeltaWeightsPrev[i] = nd.layerGradients[i]
+        else:
+            for i in range(len(nd.layerWeights)):
+                nd.layerWeights[i] = nd.layerWeights[i] - (nd.learningRate * nd.layerGradients[i] + nd.momentumAlpha * nd.layerDeltaWeightsPrev[i])
+                # Set the current delta weights for use next time.
+                nd.layerDeltaWeightsPrev[i] = nd.layerGradients[i]
         
     
     def rPropagation(self):
-        return
+        """ The rProp algorithm"""
+        npos = 1.2
+        nneg = 0.5
+        
+        # Get the sign values of each current and previous delta for each connection matrix
+        signDIToH = np.sign(nd.layerGradientsSums[0])
+        signPrevDIToH = np.sign(nd.layerGradientsSumsPrev[0])
+        
+        signDHToO = np.sign(nd.layerGradientsSums[1])
+        signPrevDHToO = np.sign(nd.layerGradientsSumsPrev[1])
+        
+        checkArrIToH = signDIToH * signPrevDIToH
+        checkArrHToO = signDHToO * signPrevDHToO
+        
+        # Only updates the hidden to output layer weights
+        for i in range(nd.layerWeights[1].shape[0]):
+            for j in range(nd.layerWeights[1].shape[1]):
+                if(checkArrHToO[i,j] == 1):
+                    # Update the delta, before applying it
+                    nd.layerRpropDeltas[1][i,j] = nd.layerRpropDeltas[1][i,j] * npos
+                
+                    # Decide what we need to do with delta
+                    if(nd.layerGradientsSums[1][i,j] > 0):
+                        
+                        nd.layerWeights[1][i, j] = nd.layerWeights[1][i, j] - nd.layerRpropDeltas[1][i,j]
+                    
+                    elif(nd.layerGradientsSums[1][i,j] < 0):
+                        
+                        nd.layerWeights[1][i, j] = nd.layerWeights[1][i, j] + nd.layerRpropDeltas[1][i,j]
+                        
+                    else:
+                        nd.layerWeights[1][i, j] = nd.layerWeights[1][i, j]
+                
+                elif(checkArrHToO[i,j] == -1):
+                    # Update the delta
+                    nd.layerRpropDeltas[1][i,j] = nd.layerRpropDeltas[1][i,j] * nneg
+                    nd.layerGradientsSums[1][i,j] = 0
+                    
+                else:
+                    if(nd.layerGradientsSums[1][i,j] > 0):
+                        nd.layerWeights[1][i, j] = nd.layerWeights[1][i, j] - nd.layerRpropDeltas[1][i,j]
+                    
+                    elif(nd.layerGradientsSums[1][i,j] < 0):
+                        nd.layerWeights[1][i, j] = nd.layerWeights[1][i, j] + nd.layerRpropDeltas[1][i,j]
+                    
+                    else:
+                        nd.layerWeights[1][i, j] = nd.layerWeights[1][i, j]
+                        
+        # Keep the delta's within specific range
+        nd.layerRpropDeltas[1] = np.clip(nd.layerRpropDeltas[1], 0.000001, 50)
+        
+        # Updates the Input to Hidden layer weights
+        for i in range(nd.layerWeights[0].shape[0]):
+            for j in range(nd.layerWeights[0].shape[1]):    
+                
+                if(checkArrIToH[i, j] == 1):
+                    nd.layerRpropDeltas[0][i, j] =  nd.layerRpropDeltas[0][i, j] * npos
+                
+                    if(nd.layerGradientsSums[0][i,j] > 0):
+                        
+                        nd.layerWeights[0][i, j] = nd.layerWeights[0][i, j] - nd.layerRpropDeltas[0][i,j]
+                    
+                    elif(nd.layerGradientsSums[0][i,j] < 0):
+                        
+                        nd.layerWeights[0][i, j] = nd.layerWeights[0][i, j] + nd.layerRpropDeltas[0][i,j]
+                    
+                    else:
+                        nd.layerWeights[0][i, j] = nd.layerWeights[0][i, j]
+                
+                elif(checkArrIToH[i, j] == -1):
+                    
+                    nd.layerRpropDeltas[0][i,j] = nd.layerRpropDeltas[0][i,j] * nneg
+                    
+                    nd.layerGradientsSums[0][i,j] = 0
+                
+                else:
+                    if(nd.layerGradientsSums[0][i,j] > 0):
+                        
+                        nd.layerWeights[0][i, j] = nd.layerWeights[0][i, j] - nd.layerRpropDeltas[0][i,j]
+                    
+                    elif(nd.layerGradientsSums[0][i,j] < 0):   
+                        
+                        nd.layerWeights[0][i, j] = nd.layerWeights[0][i, j] - nd.layerRpropDeltas[0][i,j]
+                    
+                    else:
+                        nd.layerWeights[0][i, j] = nd.layerWeights[0][i, j]
+        
+        # Keep the delta's within specific range
+        nd.layerRpropDeltas[0] = np.clip(nd.layerRpropDeltas[0], 0.000001, 50)
+        
+                        
+    def deltaBarDelta(self):
+        # The decay factor and growth amount k
+        d = 0.20
+        k = 0.0001
+        
+        
+        
     
-
+    def setSumOfPrevGradients(self):
+        """ Saves the current gradient sums to for the next pass. """
+        
+        for i in range(len(nd.layerGradientsSums)):
+            # Sets the sums for next pass
+            nd.layerGradientsSumsPrev[i] = np.copy(nd.layerGradientsSums[i])
+            
+            # Reset the gradient sum arrays
+            nd.layerGradientsSums[i].fill(0)
+#         print("Layer Gradients Sums Prev: \n", nd.layerGradientsSumsPrev)
+#         print("Layer Gradients Sums Set to 0: \n", nd.layerGradientsSums)
+            
     def decayWeights(self):
         """Decays every connections weight by weightDecayFactor percent"""
         
@@ -275,13 +422,18 @@ class NetworkTrainer:
         for i in range(outputLayer.shape[1]):
             if(outputLayer[0, i] > 0.5):
                 outputLayer[0, i] = 1
-            elif(outputLayer[0, i]<0.5):
+            elif(outputLayer[0, i] < 0.5):
                 outputLayer[0, i] = 0
         
         # Compare the current output to the expected to check accuracy.
         if(np.array_equal(outputLayer, nd.layerOutputTarget)):
             self.accuracyCount+=1
-            print("Accuracy Count: ", self.accuracyCount)
+    
+    def accuracyOfEpoch(self):
+        correct = self.accuracyCount
+        # Reset the count
+        self.accuracyCount = 0
+        return correct   
         
     ##########
     ##neuron specific methods
