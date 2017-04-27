@@ -22,6 +22,7 @@ class NetworkData:
     trainingTechnique = "backprop"
     holdoutTechnique = "holdout"
     holdoutAmt = 0.3 # The percentage OR number of k folds, dependent on the hold out technique above
+    threshold = 0.95
     
     momentumUse = False
     momentumAlpha = 0.0
@@ -84,13 +85,18 @@ class NetworkData:
         
         # The momentum values list
         self.layerDeltaWeightsPrev = [None] * (self.numOfLayers-1)
+        
+        # The learning rate values for delta bar delta
+        self.layerLearningVals = [None] * (self.numOfLayers-1)
     
         # Random weights will be generated for each layers' connections
         for i in range (0, self.numOfLayers-1):
             self.layerWeights[i] = np.random.uniform(-self.randomRange, self.randomRange, (layers[i][0],layers[i+1][0]))
             # Delta Matrices created for rProp
             self.layerRpropDeltas[i] = np.full((layers[i][0], layers[i+1][0]), 0.1)
-        
+            # Matrices created for DBD.
+            self.layerLearningVals[i] = np.full((layers[i][0], layers[i+1][0]), 0.0005)
+            
         # Create random bias values for each layer
         self.layerBias = [None] * self.numOfLayers
         
@@ -182,7 +188,11 @@ class NetworkData:
             print ("Not using weight decay")
             
     def setLayers(self, layers):
-        self.networkLayers = layers;
+        self.networkLayers = layers
+    
+    def setThreshold(self, th):
+        self.threshold = th
+        print("Used a threshold of " + str(th))
         
     
         

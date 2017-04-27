@@ -32,8 +32,8 @@ class NetworkTrainer:
         trainingSet = nd.trainingData[0:splitPt]
         testingSet = nd.trainingData[splitPt+1:len(nd.trainingData)]
         
-        for i in range (1):
-            print("Epoch " + str(i+1) +": \n")
+        for i in range (nd.epochs):
+            print("Epoch " + str(i+1) +":")
             
             np.random.shuffle(trainingSet)
             
@@ -45,13 +45,15 @@ class NetworkTrainer:
             print("Epoch Accuracy: \n", accuracy)
             
             # Stops when the network reaches a accuracy of 95%
-            if(accuracy > 0.95):
+            if(accuracy > nd.threshold):
                 print("Best accuracy for Epoch: \n", accuracy)
                 self.testNetwork(testingSet)
                 accuracy = self.accuracyOfEpoch()/len(testingSet)
                 print("Accuracy For Testing Set: \n", accuracy)
+                print("TRAINING COMPLETE!!!")
                 return
-    
+            if((i+1) == nd.epochs):
+                print("Run network again, accuracy of " + str(nd.threshold) + " was not reached!")
     
     def kfold(self):
         """
@@ -60,14 +62,15 @@ class NetworkTrainer:
         """
         
         global nd
-        
+        sumOfKRuns = 0
         # For every epoch
         for i in range (nd.epochs):
             
             np.random.shuffle(nd.trainingData)
             
             splitTrainingSets = np.array_split(nd.trainingData,nd.holdoutAmt)
-            
+            # Reset the sum
+            sumOfKRuns = 0
             #run through training kfold times, each withholding the jth subset for testing
             for j in range (nd.holdoutAmt):
                 
@@ -83,7 +86,19 @@ class NetworkTrainer:
                         trainingSet.extend(item)  
                 #train
                 self.trainNetwork(trainingSet)
+                
+                sumOfKRuns += self.accuracyOfEpoch()/len(trainingSet)
             
+            accuracy = sumOfKRuns/nd.holdoutAmt
+            print("Epoch Accuracy of k-fold: \n", accuracy)
+                
+            # Stops when the network reaches a accuracy of 95%
+            if(accuracy > nd.threshold):
+                print("Best accuracy for Epoch: \n", accuracy)
+                self.testNetwork(testingSet)
+                accuracy = self.accuracyOfEpoch()/len(testingSet)
+                print("Accuracy For Testing Set: \n", accuracy)
+                return
     
     def trainNetwork(self, trainingSet):
         """ 
@@ -113,7 +128,6 @@ class NetworkTrainer:
                 
             elif (nd.trainingTechnique == 'rprop' or nd.trainingTechnique == 'delta'):
                 self.backPropagation()
-                #print("Layer Gradients Sums: \n", nd.layerGradientsSums)
         
         if(nd.trainingTechnique == 'rprop'):
             self.rPropagation()
@@ -361,13 +375,75 @@ class NetworkTrainer:
         
                         
     def deltaBarDelta(self):
+        """ Delta bar delta implementation """
         # The decay factor and growth amount k
         d = 0.20
         k = 0.0001
         
+        # Get the sign values of each current and previous delta for each connection matrix
+        signDIToH = np.sign(nd.layerGradientsSums[0])
+        signPrevDIToH = np.sign(nd.layerGradientsSumsPrev[0])
         
+        signDHToO = np.sign(nd.layerGradientsSums[1])
+        signPrevDHToO = np.sign(nd.layerGradientsSumsPrev[1])
         
-    
+        checkArrIToH = signDIToH * signPrevDIToH
+        checkArrHToO = signDHToO * signPrevDHToO
+        
+        # Only updates the hidden to output layer weights
+        for i in range(nd.layerWeights[1].shape[0]):
+            for j in range(nd.layerWeights[1].shape[1]):
+                if(checkArrHToO[i, j] == 1):
+                    # Add to the learning rate the k growth factor.
+                    nd.layerLearningVals[1][i, j] = nd.layerLearningVals[1][i, j] + k
+                    # Multiply the current sum of the gradient.
+                    nd.layerGradientsSums[1][i, j] = nd.layerGradientsSums[1][i, j] * nd.layerLearningVals[1][i, j]
+                    # Subtract from the current weight
+                    nd.layerWeights[1][i, j] = nd.layerWeights[1][i, j] - nd.layerGradientsSums[1][i, j]
+                
+                elif(checkArrHToO[i, j] == -1):
+                    # Multiply to the learning rate the decay.
+                    nd.layerLearningVals[1][i, j] = nd.layerLearningVals[1][i, j] * (1-d)
+                    # Multiply the current sum of the gradient.
+                    nd.layerGradientsSums[1][i, j] =  nd.layerGradientsSums[1][i, j] * nd.layerLearningVals[1][i, j]
+                    # Subtract from the current weight
+                    nd.layerWeights[1][i, j] = nd.layerWeights[1][i, j] - nd.layerGradientsSums[1][i, j]
+                else:
+                    # Multiply the current sum of the gradient.
+                    nd.layerGradientsSums[1][i, j] = nd.layerGradientsSums[1][i, j] * nd.layerLearningVals[1][i, j]
+                    # Subtract from the current weight
+                    nd.layerWeights[1][i, j] = nd.layerWeights[1][i, j] - nd.layerGradientsSums[1][i, j]
+        # Limit the learning rates
+        nd.layerLearningVals[1] = np.clip(nd.layerLearningVals[1], 0.0001, 0.005)
+        
+        # Only updates the hidden to output layer weights
+        for i in range(nd.layerWeights[0].shape[0]):
+            for j in range(nd.layerWeights[0].shape[1]):
+                if(checkArrIToH[i, j] == 1):
+                    # Add to the learning rate the k growth factor.
+                    nd.layerLearningVals[0][i, j] = nd.layerLearningVals[0][i, j] + k
+                    # Multiply the current sum of the gradient.
+                    nd.layerGradientsSums[0][i, j] = nd.layerGradientsSums[0][i, j] * nd.layerLearningVals[0][i, j]
+                    # Subtract from the current weight
+                    nd.layerWeights[0][i, j] = nd.layerWeights[0][i, j] - nd.layerGradientsSums[0][i, j]
+                
+                elif(checkArrIToH[i, j] == -1):
+                    # Multiply to the learning rate the decay.
+                    nd.layerLearningVals[0][i, j] = nd.layerLearningVals[0][i, j] * (1-d)
+                    # Multiply the current sum of the gradient.
+                    nd.layerGradientsSums[0][i, j] =  nd.layerGradientsSums[0][i, j] * nd.layerLearningVals[0][i, j]
+                    # Subtract from the current weight
+                    nd.layerWeights[0][i, j] = nd.layerWeights[0][i, j] - nd.layerGradientsSums[0][i, j]
+                
+                else:
+                    # Multiply the current sum of the gradient.
+                    nd.layerGradientsSums[0][i, j] = nd.layerGradientsSums[0][i, j] * nd.layerLearningVals[0][i, j]
+                    # Subtract from the current weight
+                    nd.layerWeights[0][i, j] = nd.layerWeights[0][i, j] - nd.layerGradientsSums[0][i, j]
+        # Limit the learning rates
+        nd.layerLearningVals[0] = np.clip(nd.layerLearningVals[0], 0.0001, 0.005)
+                   
+        
     def setSumOfPrevGradients(self):
         """ Saves the current gradient sums to for the next pass. """
         

@@ -51,7 +51,8 @@ class NetworkMaster:
                       weightRange=0.5,
                       momentum=False, momentumAlpha=0.0, 
                       bias=False, biasRange = 0.0,
-                      weightDecay=False, weightDecayFactor=0.05
+                      weightDecay=False, weightDecayFactor=0.05,
+                      threshold = 0.95
                       ):
         """
         Creates our network data object and sets its values accordingly
@@ -66,6 +67,7 @@ class NetworkMaster:
         nd.setEpochs(epochs)
         nd.setLearningRate(learningRate)
         nd.setRandomRange(weightRange)
+        nd.setThreshold(threshold)
         
         nd.setMomentum(momentum, momentumAlpha)
         nd.setBias(bias, biasRange)
@@ -127,23 +129,8 @@ class NetworkMaster:
             
         except NameError:
             sys.stderr.write("  ERROR: Must create/train network before testing!")
-        
 
-##RAW CODE FOR TESTING PURPOSES
- 
-layers = [[4,"sigmoid"],[6,"sigmoid"],[2,"sigmoid"]]
 
-testNetwork = NetworkMaster()
-# Required layers
-testNetwork.createNetwork(layers, trainingTechnique="delta", epochs = 3000, learningRate=0.2, weightRange=0.5, momentum = True, momentumAlpha = 0.2)
-
-testNetwork.loadData("parity4.txt","parity4Expected.txt", ',')
-   
-#testNetwork.set(holdoutTechnique="kfold", holdoutAmt = 10)
-   
-#testNetwork.set(weightDecay = True, weightDecayFactor=0.10)
-   
-testNetwork.trainNetwork()
           
 
         

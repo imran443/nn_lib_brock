@@ -11,8 +11,6 @@ class NetworkTester:
         self.nd = networkData
         self.nt = networkTrainer
         
-        print ("Tester instantiated.")
-        
         
     def testNetwork(self, fname, delim):
         """
